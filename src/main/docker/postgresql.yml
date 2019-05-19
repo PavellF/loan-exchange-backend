@@ -1,0 +1,11 @@
+version: '2'
+services:
+  loanexchangebackend-postgresql:
+    image: postgres:11.2
+    # volumes:
+    #     - ~/volumes/jhipster/loanExchangeBackend/postgresql/:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=loanExchangeBackend
+      - POSTGRES_PASSWORD=
+    ports:
+      - 5432:5432

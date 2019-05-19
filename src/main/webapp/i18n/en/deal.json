@@ -1,0 +1,34 @@
+{
+  "loanExchangeBackendApp": {
+    "deal": {
+      "home": {
+        "title": "Deals",
+        "createLabel": "Create a new Deal",
+        "createOrEditLabel": "Create or edit a Deal"
+      },
+      "created": "A new Deal is created with identifier {{ param }}",
+      "updated": "A Deal is updated with identifier {{ param }}",
+      "deleted": "A Deal is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Deal {{ id }}?"
+      },
+      "detail": {
+        "title": "Deal"
+      },
+      "dateOpen": "Date Open",
+      "dateBecomeActive": "Date Become Active",
+      "startBalance": "Start Balance",
+      "percent": "Percent",
+      "fine": "Fine",
+      "successRate": "Success Rate",
+      "term": "Term",
+      "paymentEvery": "Payment Every",
+      "status": "Status",
+      "autoPaymentEnabled": "Auto Payment Enabled",
+      "capitalization": "Capitalization",
+      "earlyPayment": "Early Payment",
+      "emitter": "Emitter",
+      "recipient": "Recipient"
+    }
+  }
+}

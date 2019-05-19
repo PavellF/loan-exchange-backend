@@ -1,0 +1,40 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.pavelf.loanexchange",
+      "nativeLanguage": "en"
+    },
+    "jhipsterVersion": "6.0.1",
+    "applicationType": "monolith",
+    "baseName": "loanExchangeBackend",
+    "packageName": "com.pavelf.loanexchange",
+    "packageFolder": "com/pavelf/loanexchange",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": "eureka",
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "MDZjODZhMTUxMDRkNjIyNzhkZTYyOWU5MzhhMTMyOGJlYmEzMGZmMDgxOWEzODM3OGI5ODFhNGFlZGJkYjMyMjUyZGMwZTMxYmZlZmMzMmNmM2I3MjkyZjA4NjQ4OTFkNmMxOGVmOWFhMDMwOWM0Y2I0OTI2YjJlMzc4YzY3Zjg=",
+    "clientFramework": "react",
+    "clientTheme": "cerulean",
+    "clientThemeVariant": "primary",
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": true,
+    "nativeLanguage": "en",
+    "languages": ["en"]
+  }
+}

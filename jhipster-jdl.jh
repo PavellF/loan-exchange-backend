@@ -1,0 +1,45 @@
+enum Period {
+    DAY, MONTH, YEAR, ALL_TIME
+}
+
+enum DealStatus {
+	PENDING, ACTIVE, CLOSED, SUCCESS
+}
+
+entity Deal {
+  dateOpen Instant required
+  dateBecomeActive Instant
+  startBalance BigDecimal required min(0)
+  percent BigDecimal required min(0)
+  fine BigDecimal min(0)
+  successRate Integer required
+  term Integer required min(0)
+  paymentEvery Period required
+  status DealStatus required
+  autoPaymentEnabled Boolean required
+  capitalization Boolean required
+  earlyPayment Boolean required
+}
+
+entity BalanceLog {
+	date Instant required
+    oldValue BigDecimal required
+    amountChanged BigDecimal required
+    type String required
+}
+
+entity Notification {
+	haveRead Boolean required
+    date Instant required
+    message String required
+}
+
+relationship ManyToOne {
+	Deal{emitter(id)} to User,
+    Deal{recipient(id)} to User,
+	Notification{recipient(id)} to User,
+    BalanceLog{account(id)} to User,
+    BalanceLog{deal(id)} to Deal,
+}
+
+paginate BalanceLog, Notification, Deal with infinite-scroll
