@@ -3,6 +3,8 @@ package com.pavelf.loanexchange.web.rest;
 import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.repository.DealRepository;
 import com.pavelf.loanexchange.security.AuthoritiesConstants;
+import com.pavelf.loanexchange.security.SecurityUtils;
+import com.pavelf.loanexchange.service.DealService;
 import com.pavelf.loanexchange.web.rest.errors.BadRequestAlertException;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
@@ -41,8 +43,11 @@ public class DealResource {
 
     private final DealRepository dealRepository;
 
-    public DealResource(DealRepository dealRepository) {
+    private final DealService dealService;
+
+    public DealResource(DealRepository dealRepository, DealService dealService) {
         this.dealRepository = dealRepository;
+        this.dealService = dealService;
     }
 
     /**
@@ -53,12 +58,21 @@ public class DealResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/deals")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\") OR hasRole(\"" + AuthoritiesConstants.CREDITOR + "\")")
     public ResponseEntity<Deal> createDeal(@Valid @RequestBody Deal deal) throws URISyntaxException {
         log.debug("REST request to save Deal : {}", deal);
         if (deal.getId() != null) {
             throw new BadRequestAlertException("A new deal cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Deal result = dealRepository.save(deal);
+
+        Deal result = null;
+
+        if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            result = dealRepository.save(deal);
+        } else {
+            result = dealService.createDealForCurrentUser(deal);
+        }
+
         return ResponseEntity.created(new URI("/api/deals/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);

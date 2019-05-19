@@ -97,7 +97,7 @@ public class DealResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final DealResource dealResource = new DealResource(dealRepository);
+        final DealResource dealResource = new DealResource(dealRepository, userService, dealService);
         this.restDealMockMvc = MockMvcBuilders.standaloneSetup(dealResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

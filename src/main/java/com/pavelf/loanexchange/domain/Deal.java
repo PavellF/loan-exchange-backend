@@ -30,7 +30,6 @@ public class Deal implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
-    @NotNull
     @Column(name = "date_open", nullable = false)
     private Instant dateOpen;
 

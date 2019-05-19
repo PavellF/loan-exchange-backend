@@ -42,9 +42,6 @@
             </column>
             <column name="last_modified_by" type="varchar(50)"/>
             <column name="last_modified_date" type="timestamp"/>
-            <column name="balance" type="decimal(21,2)">
-                <constraints nullable="false" />
-            </column>
         </createTable>
 
         <createTable tableName="jhi_authority">

@@ -136,6 +136,11 @@ public class BalanceLog implements Serializable {
     public void setDeal(Deal deal) {
         this.deal = deal;
     }
+
+    public BigDecimal getCurrentAccountBalance() {
+        return this.oldValue.add(this.amountChanged);
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
