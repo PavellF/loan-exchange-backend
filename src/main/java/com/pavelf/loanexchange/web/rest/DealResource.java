@@ -2,7 +2,6 @@ package com.pavelf.loanexchange.web.rest;
 
 import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.repository.DealRepository;
-import com.pavelf.loanexchange.security.AuthoritiesConstants;
 import com.pavelf.loanexchange.security.SecurityUtils;
 import com.pavelf.loanexchange.service.DealService;
 import com.pavelf.loanexchange.web.rest.errors.BadRequestAlertException;
@@ -26,6 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+
+import static com.pavelf.loanexchange.security.AuthoritiesConstants.*;
 
 /**
  * REST controller for managing {@link com.pavelf.loanexchange.domain.Deal}.
@@ -54,11 +55,12 @@ public class DealResource {
      * {@code POST  /deals} : Create a new deal.
      *
      * @param deal the deal to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new deal, or with status {@code 400 (Bad Request)} if the deal has already an ID.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new deal,
+     * or with status {@code 400 (Bad Request)} if the deal has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/deals")
-    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\") OR hasRole(\"" + AuthoritiesConstants.CREDITOR + "\")")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\") OR hasRole(\"" + CREDITOR + "\")")
     public ResponseEntity<Deal> createDeal(@Valid @RequestBody Deal deal) throws URISyntaxException {
         log.debug("REST request to save Deal : {}", deal);
         if (deal.getId() != null) {
@@ -67,7 +69,7 @@ public class DealResource {
 
         Deal result = null;
 
-        if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+        if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
             result = dealRepository.save(deal);
         } else {
             result = dealService.createDealForCurrentUser(deal);
@@ -93,7 +95,17 @@ public class DealResource {
         if (deal.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Deal result = dealRepository.save(deal);
+
+        Deal result = null;
+
+        if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
+            result = dealRepository.save(deal);
+        } else if (SecurityUtils.isCurrentUserInRole(DEBTOR) || SecurityUtils.isCurrentUserInRole(SYSTEM)) {
+            result = dealService.acceptDeal(deal);
+        } else if (SecurityUtils.isCurrentUserInRole(CREDITOR)) {
+            result = dealService.updateDeal(deal);
+        }
+
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, deal.getId().toString()))
             .body(result);
@@ -106,9 +118,18 @@ public class DealResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of deals in body.
      */
     @GetMapping("/deals")
-    public ResponseEntity<List<Deal>> getAllDeals(Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<Deal>> getAllDeals(Pageable pageable,
+                                                  @RequestParam MultiValueMap<String, String> queryParams,
+                                                  UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of Deals");
-        Page<Deal> page = dealRepository.findAll(pageable);
+        Page<Deal> page = null;
+
+        if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
+            page = dealRepository.findAll(pageable);
+        } else {
+            page = dealService.findDealsForLoggedInUser(pageable);
+        }
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -122,8 +143,15 @@ public class DealResource {
     @GetMapping("/deals/{id}")
     public ResponseEntity<Deal> getDeal(@PathVariable Long id) {
         log.debug("REST request to get Deal : {}", id);
-        Optional<Deal> deal = dealRepository.findById(id);
-        return ResponseUtil.wrapOrNotFound(deal);
+
+        if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
+            Optional<Deal> deal = dealRepository.findById(id);
+            return ResponseUtil.wrapOrNotFound(deal);
+        } else {
+            Optional<Deal> deal = dealService.findDealByIdForLoggedInUser(id);
+            return ResponseUtil.wrapOrNotFound(deal);
+        }
+
     }
 
     /**
@@ -133,10 +161,11 @@ public class DealResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/deals/{id}")
-    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<Void> deleteDeal(@PathVariable Long id) {
         log.debug("REST request to delete Deal : {}", id);
         dealRepository.deleteById(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName,
+            true, ENTITY_NAME, id.toString())).build();
     }
 }

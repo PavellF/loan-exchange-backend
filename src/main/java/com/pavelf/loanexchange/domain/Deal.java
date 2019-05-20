@@ -1,7 +1,7 @@
 package com.pavelf.loanexchange.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pavelf.loanexchange.domain.enumeration.DealStatus;
 import com.pavelf.loanexchange.domain.enumeration.Period;
 import org.hibernate.annotations.Cache;
@@ -81,12 +81,12 @@ public class Deal implements Serializable {
     @Column(name = "early_payment", nullable = false)
     private Boolean earlyPayment;
 
-    @ManyToOne
-    @JsonIgnoreProperties("deals")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User emitter;
 
-    @ManyToOne
-    @JsonIgnoreProperties("deals")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User recipient;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove

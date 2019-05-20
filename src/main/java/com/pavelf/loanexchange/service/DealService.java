@@ -3,17 +3,28 @@ package com.pavelf.loanexchange.service;
 import com.pavelf.loanexchange.domain.BalanceLog;
 import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.domain.User;
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import com.pavelf.loanexchange.domain.enumeration.DealStatus;
+import com.pavelf.loanexchange.domain.enumeration.Period;
 import com.pavelf.loanexchange.repository.BalanceLogRepository;
 import com.pavelf.loanexchange.repository.DealRepository;
-import com.pavelf.loanexchange.security.NoUserFoundException;
+import com.pavelf.loanexchange.security.AuthoritiesConstants;
+import com.pavelf.loanexchange.security.SecurityUtils;
+import com.pavelf.loanexchange.web.rest.errors.BadRequestAlertException;
 import com.pavelf.loanexchange.web.rest.errors.NotEnoughMoneyException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
+
+import static com.pavelf.loanexchange.security.AuthoritiesConstants.CREDITOR;
+import static com.pavelf.loanexchange.security.AuthoritiesConstants.DEBTOR;
 
 /**
  * Service for managing deals.
@@ -38,7 +49,7 @@ public class DealService {
      * */
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public Deal createDealForCurrentUser(Deal deal) {
-        User loggedInUser = userService.getUserWithAuthorities().orElseThrow(NoUserFoundException::new);
+        User loggedInUser = userService.getUserWithAuthorities().get();
         BalanceLog balanceLog = balanceLogRepository.findLastLogForUser().orElseThrow(NotEnoughMoneyException::new);
         BigDecimal currentBalance = balanceLog.getCurrentAccountBalance();
 
@@ -46,20 +57,166 @@ public class DealService {
             throw new NotEnoughMoneyException();
         }
 
-        deal.successRate(computeSuccessRate())
-            .status(DealStatus.PENDING)
-            .emitter(loggedInUser).recipient(null)
-            .dateOpen(Instant.now())
-            .dateBecomeActive(null);
+        final Instant now = Instant.now();
+        final BigDecimal changed = deal.getStartBalance().negate();
+
+        deal.successRate(computeSuccessRate(deal)).status(DealStatus.PENDING).emitter(loggedInUser)
+            .recipient(null).dateOpen(now).dateBecomeActive(null);
 
         Deal saved = dealRepository.save(deal);
 
-        // create deal -> log minus money from accaunt -> log plus for deal
+        BalanceLog minusFromAccount = new BalanceLog().date(now).oldValue(currentBalance)
+            .amountChanged(changed).type(BalanceLogEvent.NEW_DEAL_OPEN).account(loggedInUser);
+
+        balanceLogRepository.save(minusFromAccount);
+
+        BalanceLog plusOnDeal = new BalanceLog().date(now).oldValue(BigDecimal.ZERO)
+            .amountChanged(deal.getStartBalance()).type(BalanceLogEvent.NEW_DEAL_OPEN).deal(saved);
+
+        balanceLogRepository.save(plusOnDeal);
 
         return saved;
     }
 
-    private int computeSuccessRate() {
-        return 0;
+    /**
+     * Tries to accept deal with current logged in user.
+     * @throws BadRequestAlertException if could not process acceptance
+     * */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Deal acceptDeal(Deal toProcess) {
+        Deal deal = dealRepository.findById(toProcess.getId()).get();
+
+        if (deal.getStatus() != DealStatus.PENDING) {
+            throw new BadRequestAlertException("Deal is not in pending status.", "deal", "dealactive");
+        }
+
+        User loggedInUser = userService.getUserWithAuthorities().get();
+        final Instant now = Instant.now();
+        final int activeDealsForRecipient = dealRepository.countActiveDealsForRecipient(loggedInUser);
+
+        if (activeDealsForRecipient > 0 && !SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.SYSTEM)) {
+            throw new BadRequestAlertException("Could not possess more than one deals simultaneously.",
+                "deal", "doubledeal");
+        }
+
+        deal.setStatus(DealStatus.ACTIVE);
+        deal.setDateBecomeActive(now);
+
+        BigDecimal balanceToSubtract = balanceLogRepository.findAllForDeal(deal).stream()
+            .map(BalanceLog::getAmountChanged).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BalanceLog plusOnDebtorAccount = new BalanceLog().date(now).amountChanged(balanceToSubtract)
+            .type(BalanceLogEvent.LOAN_TAKEN).account(loggedInUser).oldValue(BigDecimal.ZERO);
+
+        balanceLogRepository.findLastLogForUser()
+            .ifPresent(log -> plusOnDebtorAccount.oldValue(log.getCurrentAccountBalance()));
+
+        Deal updated = dealRepository.save(deal);
+        balanceLogRepository.save(plusOnDebtorAccount);
+
+        return updated;
+    }
+
+    /**
+     * Finds all deals for creditor or debtor.
+     * */
+    @Transactional(readOnly = true)
+    public Page<Deal> findDealsForLoggedInUser(Pageable pageable) {
+        User loggedInUser = userService.getUserWithAuthorities().get();
+        Page<Deal> page = null;
+
+        Deal deal = new Deal();
+
+        if (loggedInUser.getAuthorities().contains(CREDITOR)) {
+            deal.emitter(loggedInUser);
+        } else if (loggedInUser.getAuthorities().contains(DEBTOR)) {
+            deal.recipient(loggedInUser);
+        } else {
+            return Page.empty();
+        }
+
+        Example<Deal> example = Example.of(deal);
+        page = dealRepository.findAll(example, pageable);
+
+        return page;
+    }
+
+    /**
+     * Finds deal for creditor or debtor by id.
+     * */
+    @Transactional(readOnly = true)
+    public Optional<Deal> findDealByIdForLoggedInUser(Long dealId) {
+        User loggedInUser = userService.getUserWithAuthorities().get();
+        Deal exampleDeal = new Deal();
+        exampleDeal.setId(dealId);
+
+        if (loggedInUser.getAuthorities().contains(CREDITOR)) {
+            exampleDeal.emitter(loggedInUser);
+        } else if (loggedInUser.getAuthorities().contains(DEBTOR)) {
+            exampleDeal.recipient(loggedInUser);
+        } else {
+            return Optional.empty();
+        }
+
+        Example<Deal> example = Example.of(exampleDeal);
+        return dealRepository.findOne(example);
+    }
+
+    /**
+     * Updates deal for creditor.
+     * */
+    @Transactional
+    public Deal updateDeal(Deal toUpdate) {
+        Deal deal = dealRepository.findById(toUpdate.getId()).get();
+
+        if (toUpdate.getStatus() == DealStatus.CLOSED) {
+            deal.setStatus(DealStatus.CLOSED);
+        }
+
+        Deal updated = dealRepository.save(deal);
+
+        return updated;
+    }
+
+    private int computeSuccessRate(Deal deal) {
+        final int term = deal.getTerm();
+        final double fine = deal.getFine().doubleValue();
+        final double percent = deal.getPercent().doubleValue();
+        final Period paymentEvery = deal.getPaymentEvery();
+        double successRate = 100;
+
+        // bigger term - bigger successRate
+        final int termModifier = 20;
+        final int termRate = Math.round(term / termModifier);
+        if (termRate < termModifier) {
+            successRate = successRate - (termModifier - termRate);
+        }
+
+        //bigger rate - lesser successRate
+        double rateAtomic = 1;
+
+        if (paymentEvery == Period.YEAR) {
+            rateAtomic = 1.5;
+        } else if (paymentEvery == Period.MONTH) {
+            rateAtomic = 2;
+        } else if (paymentEvery == Period.DAY) {
+            rateAtomic = 18;
+        }
+
+        successRate = successRate - rateAtomic * percent;
+
+        if (fine > 0) {
+            successRate = successRate - (rateAtomic + 9) * fine;
+        }
+
+        if (!deal.isEarlyPayment()) {
+            successRate = successRate - 5;
+        }
+
+        if (!deal.isCapitalization()) {
+            successRate = successRate - 19;
+        }
+
+        return Math.max((int) Math.floor(successRate), 1);
     }
 }

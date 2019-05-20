@@ -1,6 +1,7 @@
 package com.pavelf.loanexchange.repository;
 
 import com.pavelf.loanexchange.domain.BalanceLog;
+import com.pavelf.loanexchange.domain.Deal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,11 @@ public interface BalanceLogRepository extends JpaRepository<BalanceLog, Long> {
     @Query("SELECT balanceLog FROM BalanceLog AS balanceLog WHERE id = " +
         "(SELECT MAX(id) from BalanceLog AS bl WHERE balanceLog.account.login = ?#{principal.username})")
     Optional<BalanceLog> findLastLogForUser();
+
+    @Query("SELECT balanceLog FROM BalanceLog AS balanceLog WHERE id = " +
+        "(SELECT MAX(id) from BalanceLog AS bl WHERE balanceLog.deal = ?1)")
+    Optional<BalanceLog> findLastLogForDeal(Deal deal);
+
+    @Query("SELECT balanceLog FROM BalanceLog AS balanceLog WHERE deal = ?1")
+    List<BalanceLog> findAllForDeal(Deal deal);
 }

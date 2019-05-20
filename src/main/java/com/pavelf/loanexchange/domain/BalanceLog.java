@@ -2,6 +2,7 @@ package com.pavelf.loanexchange.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -39,8 +40,9 @@ public class BalanceLog implements Serializable {
     private BigDecimal amountChanged;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "jhi_type", nullable = false)
-    private String type;
+    private BalanceLogEvent type;
 
     @ManyToOne
     @JsonIgnoreProperties("balanceLogs")
@@ -98,16 +100,16 @@ public class BalanceLog implements Serializable {
         this.amountChanged = amountChanged;
     }
 
-    public String getType() {
+    public BalanceLogEvent getType() {
         return type;
     }
 
-    public BalanceLog type(String type) {
+    public BalanceLog type(BalanceLogEvent type) {
         this.type = type;
         return this;
     }
 
-    public void setType(String type) {
+    public void setType(BalanceLogEvent type) {
         this.type = type;
     }
 
