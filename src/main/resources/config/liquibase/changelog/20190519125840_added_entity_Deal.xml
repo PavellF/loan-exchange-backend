@@ -41,6 +41,10 @@
                 <constraints nullable="false" />
             </column>
 
+            <column name="term_days" type="integer">
+                <constraints nullable="false" />
+            </column>
+
             <column name="payment_every" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
@@ -98,6 +102,7 @@
             <column name="fine" type="numeric"/>
             <column name="success_rate" type="numeric"/>
             <column name="term" type="numeric"/>
+            <column name="term_days" type="numeric"/>
             <column name="payment_every" type="string"/>
             <column name="status" type="string"/>
             <column name="auto_payment_enabled" type="boolean"/>

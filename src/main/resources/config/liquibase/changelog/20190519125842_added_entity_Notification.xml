@@ -13,9 +13,6 @@
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="have_read" type="boolean">
-                <constraints nullable="false" />
-            </column>
 
             <column name="jhi_date" type="datetime">
                 <constraints nullable="false" />
@@ -23,6 +20,10 @@
 
             <column name="message" type="varchar(255)">
                 <constraints nullable="false" />
+            </column>
+
+            <column name="associated_deal_id" type="bigint">
+                <constraints nullable="true" />
             </column>
 
             <column name="recipient_id" type="bigint">
@@ -50,7 +51,6 @@
                   tableName="notification"
                   context="dev">
             <column name="id" type="numeric"/>
-            <column name="have_read" type="boolean"/>
             <column name="jhi_date" type="date"/>
             <column name="message" type="string"/>
         </loadData>

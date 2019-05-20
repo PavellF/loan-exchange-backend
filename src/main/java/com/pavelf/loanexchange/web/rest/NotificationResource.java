@@ -1,8 +1,12 @@
 package com.pavelf.loanexchange.web.rest;
 
 import com.pavelf.loanexchange.domain.Notification;
+import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.repository.NotificationRepository;
+import com.pavelf.loanexchange.security.SecurityUtils;
+import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.web.rest.errors.BadRequestAlertException;
+import com.pavelf.loanexchange.web.rest.specifications.NotificationSpecification;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -13,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,6 +27,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+
+import static com.pavelf.loanexchange.security.AuthoritiesConstants.ADMIN;
 
 /**
  * REST controller for managing {@link com.pavelf.loanexchange.domain.Notification}.
@@ -38,9 +45,11 @@ public class NotificationResource {
     private String applicationName;
 
     private final NotificationRepository notificationRepository;
+    private final UserService userService;
 
-    public NotificationResource(NotificationRepository notificationRepository) {
+    public NotificationResource(NotificationRepository notificationRepository, UserService userService) {
         this.notificationRepository = notificationRepository;
+        this.userService = userService;
     }
 
     /**
@@ -51,6 +60,7 @@ public class NotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/notifications")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<Notification> createNotification(@Valid @RequestBody Notification notification) throws URISyntaxException {
         log.debug("REST request to save Notification : {}", notification);
         if (notification.getId() != null) {
@@ -72,6 +82,7 @@ public class NotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/notifications")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<Notification> updateNotification(@Valid @RequestBody Notification notification) throws URISyntaxException {
         log.debug("REST request to update Notification : {}", notification);
         if (notification.getId() == null) {
@@ -90,9 +101,18 @@ public class NotificationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of notifications in body.
      */
     @GetMapping("/notifications")
-    public ResponseEntity<List<Notification>> getAllNotifications(Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<Notification>> getAllNotifications(Pageable pageable,
+                                                                  @RequestParam NotificationSpecification params,
+                                                                  @RequestParam MultiValueMap<String, String> queryParams,
+                                                                  UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of Notifications");
-        Page<Notification> page = notificationRepository.findAll(pageable);
+
+        if (!SecurityUtils.isCurrentUserInRole(ADMIN)) {
+            User loggedInUser = userService.getUserWithAuthorities().get();
+            params.setForUser(loggedInUser.getId());
+        }
+
+        Page<Notification> page = notificationRepository.findAll(params, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -101,9 +121,11 @@ public class NotificationResource {
      * {@code GET  /notifications/:id} : get the "id" notification.
      *
      * @param id the id of the notification to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the notification, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the notification,
+     * or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/notifications/{id}")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<Notification> getNotification(@PathVariable Long id) {
         log.debug("REST request to get Notification : {}", id);
         Optional<Notification> notification = notificationRepository.findById(id);
@@ -120,6 +142,7 @@ public class NotificationResource {
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
         log.debug("REST request to delete Notification : {}", id);
         notificationRepository.deleteById(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(
+            applicationName, true, ENTITY_NAME, id.toString())).build();
     }
 }

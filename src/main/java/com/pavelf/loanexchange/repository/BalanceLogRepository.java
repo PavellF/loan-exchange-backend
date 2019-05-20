@@ -3,6 +3,7 @@ package com.pavelf.loanexchange.repository;
 import com.pavelf.loanexchange.domain.BalanceLog;
 import com.pavelf.loanexchange.domain.Deal;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface BalanceLogRepository extends JpaRepository<BalanceLog, Long> {
+public interface BalanceLogRepository extends JpaRepository<BalanceLog, Long>, JpaSpecificationExecutor<BalanceLog> {
 
     @Query("select balanceLog from BalanceLog balanceLog where balanceLog.account.login = ?#{principal.username}")
     List<BalanceLog> findByAccountIsCurrentUser();

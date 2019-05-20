@@ -1,8 +1,12 @@
 package com.pavelf.loanexchange.web.rest;
 
 import com.pavelf.loanexchange.domain.BalanceLog;
+import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.repository.BalanceLogRepository;
+import com.pavelf.loanexchange.security.SecurityUtils;
+import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.web.rest.errors.BadRequestAlertException;
+import com.pavelf.loanexchange.web.rest.specifications.BalanceLogSpecification;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -13,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,6 +27,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+
+import static com.pavelf.loanexchange.security.AuthoritiesConstants.ADMIN;
 
 /**
  * REST controller for managing {@link com.pavelf.loanexchange.domain.BalanceLog}.
@@ -34,12 +41,15 @@ public class BalanceLogResource {
 
     private static final String ENTITY_NAME = "balanceLog";
 
+    private final UserService userService;
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     private final BalanceLogRepository balanceLogRepository;
 
-    public BalanceLogResource(BalanceLogRepository balanceLogRepository) {
+    public BalanceLogResource(UserService userService, BalanceLogRepository balanceLogRepository) {
+        this.userService = userService;
         this.balanceLogRepository = balanceLogRepository;
     }
 
@@ -51,6 +61,7 @@ public class BalanceLogResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/balance-logs")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<BalanceLog> createBalanceLog(@Valid @RequestBody BalanceLog balanceLog) throws URISyntaxException {
         log.debug("REST request to save BalanceLog : {}", balanceLog);
         if (balanceLog.getId() != null) {
@@ -72,6 +83,7 @@ public class BalanceLogResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/balance-logs")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<BalanceLog> updateBalanceLog(@Valid @RequestBody BalanceLog balanceLog) throws URISyntaxException {
         log.debug("REST request to update BalanceLog : {}", balanceLog);
         if (balanceLog.getId() == null) {
@@ -90,9 +102,30 @@ public class BalanceLogResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of balanceLogs in body.
      */
     @GetMapping("/balance-logs")
-    public ResponseEntity<List<BalanceLog>> getAllBalanceLogs(Pageable pageable, @RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<List<BalanceLog>> getAllBalanceLogs(Pageable pageable,
+                                                              @RequestParam BalanceLogSpecification params,
+                                                              @RequestParam MultiValueMap<String, String> queryParams,
+                                                              UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of BalanceLogs");
-        Page<BalanceLog> page = balanceLogRepository.findAll(pageable);
+
+        if (!SecurityUtils.isCurrentUserInRole(ADMIN)) {
+            User loggedInUser = userService.getUserWithAuthorities().get();
+
+            if (params.getForUser() != null) {
+                params.setForUser(loggedInUser.getId());
+            }
+
+            if (params.getForDeal() != null) {
+                params.setUserParticipatingInDeal(loggedInUser.getId());
+            }
+
+            if (params.getForDeal() == null && params.getForUser() == null) {
+                params.setForUser(loggedInUser.getId());
+            }
+        }
+
+        Page<BalanceLog> page = balanceLogRepository.findAll(params, pageable);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -104,6 +137,7 @@ public class BalanceLogResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the balanceLog, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/balance-logs/{id}")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<BalanceLog> getBalanceLog(@PathVariable Long id) {
         log.debug("REST request to get BalanceLog : {}", id);
         Optional<BalanceLog> balanceLog = balanceLogRepository.findById(id);
@@ -117,6 +151,7 @@ public class BalanceLogResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/balance-logs/{id}")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<Void> deleteBalanceLog(@PathVariable Long id) {
         log.debug("REST request to delete BalanceLog : {}", id);
         balanceLogRepository.deleteById(id);

@@ -100,7 +100,7 @@ public class DealResource {
 
         if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
             result = dealRepository.save(deal);
-        } else if (SecurityUtils.isCurrentUserInRole(DEBTOR) || SecurityUtils.isCurrentUserInRole(SYSTEM)) {
+        } else if (SecurityUtils.isCurrentUserInRole(DEBTOR)) {
             result = dealService.acceptDeal(deal);
         } else if (SecurityUtils.isCurrentUserInRole(CREDITOR)) {
             result = dealService.updateDeal(deal);
@@ -127,7 +127,7 @@ public class DealResource {
         if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
             page = dealRepository.findAll(pageable);
         } else {
-            page = dealService.findDealsForLoggedInUser(pageable);
+            page = dealService.findDealsForLoggedInUser(pageable);//todo
         }
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);

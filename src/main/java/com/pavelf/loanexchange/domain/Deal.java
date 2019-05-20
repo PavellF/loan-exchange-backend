@@ -3,7 +3,6 @@ package com.pavelf.loanexchange.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pavelf.loanexchange.domain.enumeration.DealStatus;
-import com.pavelf.loanexchange.domain.enumeration.Period;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -14,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 /**
  * A Deal.
@@ -55,6 +55,10 @@ public class Deal implements Serializable {
     private Integer successRate;
 
     @NotNull
+    @Column(name = "term_days", nullable = false)
+    private Integer termDays;
+
+    @NotNull
     @Min(value = 0)
     @Column(name = "term", nullable = false)
     private Integer term;
@@ -62,7 +66,7 @@ public class Deal implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_every", nullable = false)
-    private Period paymentEvery;
+    private ChronoUnit paymentEvery;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -189,16 +193,16 @@ public class Deal implements Serializable {
         this.term = term;
     }
 
-    public Period getPaymentEvery() {
+    public ChronoUnit getPaymentEvery() {
         return paymentEvery;
     }
 
-    public Deal paymentEvery(Period paymentEvery) {
+    public Deal paymentEvery(ChronoUnit paymentEvery) {
         this.paymentEvery = paymentEvery;
         return this;
     }
 
-    public void setPaymentEvery(Period paymentEvery) {
+    public void setPaymentEvery(ChronoUnit paymentEvery) {
         this.paymentEvery = paymentEvery;
     }
 
@@ -279,6 +283,20 @@ public class Deal implements Serializable {
     public void setRecipient(User user) {
         this.recipient = user;
     }
+
+    public Integer getTermDays() {
+        return termDays;
+    }
+
+    public void setTermDays(Integer termDays) {
+        this.termDays = termDays;
+    }
+
+    public Deal termDays(Integer termDays) {
+        this.termDays = termDays;
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -300,19 +318,22 @@ public class Deal implements Serializable {
     @Override
     public String toString() {
         return "Deal{" +
-            "id=" + getId() +
-            ", dateOpen='" + getDateOpen() + "'" +
-            ", dateBecomeActive='" + getDateBecomeActive() + "'" +
-            ", startBalance=" + getStartBalance() +
-            ", percent=" + getPercent() +
-            ", fine=" + getFine() +
-            ", successRate=" + getSuccessRate() +
-            ", term=" + getTerm() +
-            ", paymentEvery='" + getPaymentEvery() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", autoPaymentEnabled='" + isAutoPaymentEnabled() + "'" +
-            ", capitalization='" + isCapitalization() + "'" +
-            ", earlyPayment='" + isEarlyPayment() + "'" +
-            "}";
+            "id=" + id +
+            ", dateOpen=" + dateOpen +
+            ", dateBecomeActive=" + dateBecomeActive +
+            ", startBalance=" + startBalance +
+            ", percent=" + percent +
+            ", fine=" + fine +
+            ", successRate=" + successRate +
+            ", termDays=" + termDays +
+            ", term=" + term +
+            ", paymentEvery=" + paymentEvery +
+            ", status=" + status +
+            ", autoPaymentEnabled=" + autoPaymentEnabled +
+            ", capitalization=" + capitalization +
+            ", earlyPayment=" + earlyPayment +
+            ", emitter=" + emitter +
+            ", recipient=" + recipient +
+            '}';
     }
 }

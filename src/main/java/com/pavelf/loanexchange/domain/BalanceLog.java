@@ -44,11 +44,11 @@ public class BalanceLog implements Serializable {
     @Column(name = "jhi_type", nullable = false)
     private BalanceLogEvent type;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties("balanceLogs")
     private User account;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties("balanceLogs")
     private Deal deal;
 

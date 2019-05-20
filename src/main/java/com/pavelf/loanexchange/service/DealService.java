@@ -5,7 +5,6 @@ import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import com.pavelf.loanexchange.domain.enumeration.DealStatus;
-import com.pavelf.loanexchange.domain.enumeration.Period;
 import com.pavelf.loanexchange.repository.BalanceLogRepository;
 import com.pavelf.loanexchange.repository.DealRepository;
 import com.pavelf.loanexchange.security.AuthoritiesConstants;
@@ -20,7 +19,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static com.pavelf.loanexchange.security.AuthoritiesConstants.CREDITOR;
@@ -35,12 +36,14 @@ public class DealService {
     private final UserService userService;
     private final BalanceLogRepository balanceLogRepository;
     private final DealRepository dealRepository;
+    private final BalanceLogService balanceLogService;
 
     public DealService(UserService userService, BalanceLogRepository balanceLogRepository,
-                       DealRepository dealRepository) {
+                       DealRepository dealRepository, BalanceLogService balanceLogService) {
         this.userService = userService;
         this.balanceLogRepository = balanceLogRepository;
         this.dealRepository = dealRepository;
+        this.balanceLogService = balanceLogService;
     }
 
     /**
@@ -61,7 +64,7 @@ public class DealService {
         final BigDecimal changed = deal.getStartBalance().negate();
 
         deal.successRate(computeSuccessRate(deal)).status(DealStatus.PENDING).emitter(loggedInUser)
-            .recipient(null).dateOpen(now).dateBecomeActive(null);
+            .recipient(null).dateOpen(now).dateBecomeActive(null).termDays(computeTermDays(deal, now));
 
         Deal saved = dealRepository.save(deal);
 
@@ -75,7 +78,24 @@ public class DealService {
 
         balanceLogRepository.save(plusOnDeal);
 
+        BalanceLog instantEarn = balanceLogService.earnPercent(saved.getPercent(), plusOnDeal);
+        instantEarn.setDeal(saved);
+
+        balanceLogRepository.save(instantEarn);
+
         return saved;
+    }
+
+    private Integer computeTermDays(Deal deal, Instant now) {
+        Instant end;
+
+        if (deal.getPaymentEvery() == ChronoUnit.FOREVER) {
+            end = now.plus(deal.getTerm(), ChronoUnit.DAYS);
+        } else {
+            end = now.plus(deal.getTerm(), deal.getPaymentEvery());
+        }
+
+        return (int) Duration.between(now, end).get(ChronoUnit.DAYS);
     }
 
     /**
@@ -123,8 +143,6 @@ public class DealService {
     @Transactional(readOnly = true)
     public Page<Deal> findDealsForLoggedInUser(Pageable pageable) {
         User loggedInUser = userService.getUserWithAuthorities().get();
-        Page<Deal> page = null;
-
         Deal deal = new Deal();
 
         if (loggedInUser.getAuthorities().contains(CREDITOR)) {
@@ -136,9 +154,7 @@ public class DealService {
         }
 
         Example<Deal> example = Example.of(deal);
-        page = dealRepository.findAll(example, pageable);
-
-        return page;
+        return dealRepository.findAll(example, pageable);
     }
 
     /**
@@ -182,7 +198,7 @@ public class DealService {
         final int term = deal.getTerm();
         final double fine = deal.getFine().doubleValue();
         final double percent = deal.getPercent().doubleValue();
-        final Period paymentEvery = deal.getPaymentEvery();
+        final ChronoUnit paymentEvery = deal.getPaymentEvery();
         double successRate = 100;
 
         // bigger term - bigger successRate
@@ -195,11 +211,11 @@ public class DealService {
         //bigger rate - lesser successRate
         double rateAtomic = 1;
 
-        if (paymentEvery == Period.YEAR) {
+        if (paymentEvery == ChronoUnit.YEARS) {
             rateAtomic = 1.5;
-        } else if (paymentEvery == Period.MONTH) {
+        } else if (paymentEvery == ChronoUnit.MONTHS) {
             rateAtomic = 2;
-        } else if (paymentEvery == Period.DAY) {
+        } else if (paymentEvery == ChronoUnit.DAYS) {
             rateAtomic = 18;
         }
 
@@ -217,6 +233,6 @@ public class DealService {
             successRate = successRate - 19;
         }
 
-        return Math.max((int) Math.floor(successRate), 1);
+        return Math.max((int) Math.ceil(successRate), 1);
     }
 }

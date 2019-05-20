@@ -2,6 +2,7 @@ package com.pavelf.loanexchange.repository;
 
 import com.pavelf.loanexchange.domain.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+public interface NotificationRepository extends JpaRepository<Notification, Long>, JpaSpecificationExecutor<Notification> {
 
     @Query("select notification from Notification notification where notification.recipient.login = ?#{principal.username}")
     List<Notification> findByRecipientIsCurrentUser();
