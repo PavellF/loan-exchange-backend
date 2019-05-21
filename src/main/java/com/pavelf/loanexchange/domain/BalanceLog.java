@@ -1,7 +1,7 @@
 package com.pavelf.loanexchange.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -45,11 +45,11 @@ public class BalanceLog implements Serializable {
     private BalanceLogEvent type;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("balanceLogs")
+    @JsonIgnore
     private User account;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("balanceLogs")
+    @JsonIgnore
     private Deal deal;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove

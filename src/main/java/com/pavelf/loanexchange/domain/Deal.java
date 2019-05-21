@@ -46,10 +46,6 @@ public class Deal implements Serializable {
     @Column(name = "jhi_percent", precision = 21, scale = 2, nullable = false)
     private BigDecimal percent;
 
-    @DecimalMin(value = "0")
-    @Column(name = "fine", precision = 21, scale = 2)
-    private BigDecimal fine;
-
     @NotNull
     @Column(name = "success_rate", nullable = false)
     private Integer successRate;
@@ -72,18 +68,6 @@ public class Deal implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private DealStatus status;
-
-    @NotNull
-    @Column(name = "auto_payment_enabled", nullable = false)
-    private Boolean autoPaymentEnabled;
-
-    @NotNull
-    @Column(name = "capitalization", nullable = false)
-    private Boolean capitalization;
-
-    @NotNull
-    @Column(name = "early_payment", nullable = false)
-    private Boolean earlyPayment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
@@ -154,19 +138,6 @@ public class Deal implements Serializable {
         this.percent = percent;
     }
 
-    public BigDecimal getFine() {
-        return fine;
-    }
-
-    public Deal fine(BigDecimal fine) {
-        this.fine = fine;
-        return this;
-    }
-
-    public void setFine(BigDecimal fine) {
-        this.fine = fine;
-    }
-
     public Integer getSuccessRate() {
         return successRate;
     }
@@ -219,45 +190,6 @@ public class Deal implements Serializable {
         this.status = status;
     }
 
-    public Boolean isAutoPaymentEnabled() {
-        return autoPaymentEnabled;
-    }
-
-    public Deal autoPaymentEnabled(Boolean autoPaymentEnabled) {
-        this.autoPaymentEnabled = autoPaymentEnabled;
-        return this;
-    }
-
-    public void setAutoPaymentEnabled(Boolean autoPaymentEnabled) {
-        this.autoPaymentEnabled = autoPaymentEnabled;
-    }
-
-    public Boolean isCapitalization() {
-        return capitalization;
-    }
-
-    public Deal capitalization(Boolean capitalization) {
-        this.capitalization = capitalization;
-        return this;
-    }
-
-    public void setCapitalization(Boolean capitalization) {
-        this.capitalization = capitalization;
-    }
-
-    public Boolean isEarlyPayment() {
-        return earlyPayment;
-    }
-
-    public Deal earlyPayment(Boolean earlyPayment) {
-        this.earlyPayment = earlyPayment;
-        return this;
-    }
-
-    public void setEarlyPayment(Boolean earlyPayment) {
-        this.earlyPayment = earlyPayment;
-    }
-
     public User getEmitter() {
         return emitter;
     }
@@ -297,6 +229,20 @@ public class Deal implements Serializable {
         return this;
     }
 
+    public BigDecimal getAveragePayment() {
+        if (paymentEvery == ChronoUnit.FOREVER) {
+            return getStartBalance().multiply(getPercent().add(BigDecimal.ONE));
+        }
+        BigDecimal term = BigDecimal.valueOf(getTerm());
+        BigDecimal overhead = getPercentCharge().multiply(term);
+        BigDecimal overallCharged = overhead.add(getStartBalance());
+        return overallCharged.divide(term);
+    }
+
+    public BigDecimal getPercentCharge() {
+        return getStartBalance().multiply(getPercent());
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -323,17 +269,11 @@ public class Deal implements Serializable {
             ", dateBecomeActive=" + dateBecomeActive +
             ", startBalance=" + startBalance +
             ", percent=" + percent +
-            ", fine=" + fine +
             ", successRate=" + successRate +
             ", termDays=" + termDays +
             ", term=" + term +
             ", paymentEvery=" + paymentEvery +
             ", status=" + status +
-            ", autoPaymentEnabled=" + autoPaymentEnabled +
-            ", capitalization=" + capitalization +
-            ", earlyPayment=" + earlyPayment +
-            ", emitter=" + emitter +
-            ", recipient=" + recipient +
             '}';
     }
 }

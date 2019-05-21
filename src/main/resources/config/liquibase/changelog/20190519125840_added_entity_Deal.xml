@@ -29,10 +29,6 @@
                 <constraints nullable="false" />
             </column>
 
-            <column name="fine" type="decimal(21,2)">
-                <constraints nullable="true" />
-            </column>
-
             <column name="success_rate" type="integer">
                 <constraints nullable="false" />
             </column>
@@ -50,18 +46,6 @@
             </column>
 
             <column name="status" type="varchar(255)">
-                <constraints nullable="false" />
-            </column>
-
-            <column name="auto_payment_enabled" type="boolean">
-                <constraints nullable="false" />
-            </column>
-
-            <column name="capitalization" type="boolean">
-                <constraints nullable="false" />
-            </column>
-
-            <column name="early_payment" type="boolean">
                 <constraints nullable="false" />
             </column>
 
@@ -99,15 +83,11 @@
             <column name="date_become_active" type="date"/>
             <column name="start_balance" type="numeric"/>
             <column name="jhi_percent" type="numeric"/>
-            <column name="fine" type="numeric"/>
             <column name="success_rate" type="numeric"/>
             <column name="term" type="numeric"/>
             <column name="term_days" type="numeric"/>
             <column name="payment_every" type="string"/>
             <column name="status" type="string"/>
-            <column name="auto_payment_enabled" type="boolean"/>
-            <column name="capitalization" type="boolean"/>
-            <column name="early_payment" type="boolean"/>
         </loadData>
     </changeSet>
 

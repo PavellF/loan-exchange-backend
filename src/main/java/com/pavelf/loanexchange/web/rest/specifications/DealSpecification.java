@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,11 +14,12 @@ public class DealSpecification implements Specification<Deal> {
 
     private Long forEmitter;
     private Long forRecipient;
-    private Boolean withEarlyPayment;
     private DealStatus withStatus;
     private Integer forMinAmountOfDays;
     private Integer withStartBalance;
     private Integer successRate;
+    private Integer dealId;
+    private ChronoUnit paymentEvery;
 
     @Override
     public Predicate toPredicate(Root<Deal> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -34,10 +36,6 @@ public class DealSpecification implements Specification<Deal> {
             predicateList.add(cb.equal(recipient.get("id"), forRecipient));
         }
 
-        if (withEarlyPayment != null) {
-            predicateList.add(cb.equal(root.get("earlyPayment"), withEarlyPayment));
-        }
-
         if (withStatus != null) {
             predicateList.add(cb.equal(root.get("status"), withStatus));
         }
@@ -52,6 +50,14 @@ public class DealSpecification implements Specification<Deal> {
 
         if (successRate != null) {
             predicateList.add(cb.greaterThanOrEqualTo(root.get("successRate"), successRate));
+        }
+
+        if (dealId != null) {
+            predicateList.add(cb.equal(root.get("id"), dealId));
+        }
+
+        if (paymentEvery != null) {
+            predicateList.add(cb.equal(root.get("paymentEvery"), paymentEvery));
         }
 
         return cb.and(predicateList.toArray(new Predicate[predicateList.size()]));
@@ -81,14 +87,6 @@ public class DealSpecification implements Specification<Deal> {
         this.forRecipient = forRecipient;
     }
 
-    public Boolean getWithEarlyPayment() {
-        return withEarlyPayment;
-    }
-
-    public void setWithEarlyPayment(Boolean withEarlyPayment) {
-        this.withEarlyPayment = withEarlyPayment;
-    }
-
     public DealStatus getWithStatus() {
         return withStatus;
     }
@@ -111,5 +109,21 @@ public class DealSpecification implements Specification<Deal> {
 
     public void setWithStartBalance(Integer withStartBalance) {
         this.withStartBalance = withStartBalance;
+    }
+
+    public Integer getDealId() {
+        return dealId;
+    }
+
+    public void setDealId(Integer dealId) {
+        this.dealId = dealId;
+    }
+
+    public ChronoUnit getPaymentEvery() {
+        return paymentEvery;
+    }
+
+    public void setPaymentEvery(ChronoUnit paymentEvery) {
+        this.paymentEvery = paymentEvery;
     }
 }

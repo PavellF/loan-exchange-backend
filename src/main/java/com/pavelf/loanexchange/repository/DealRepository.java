@@ -3,6 +3,7 @@ package com.pavelf.loanexchange.repository;
 import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface DealRepository extends JpaRepository<Deal, Long> {
+public interface DealRepository extends JpaRepository<Deal, Long>, JpaSpecificationExecutor<Deal> {
 
     @Query("select deal from Deal deal where deal.emitter.login = ?#{principal.username}")
     List<Deal> findByEmitterIsCurrentUser();

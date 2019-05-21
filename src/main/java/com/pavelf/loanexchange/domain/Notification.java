@@ -2,6 +2,7 @@ package com.pavelf.loanexchange.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -27,11 +28,12 @@ public class Notification implements Serializable {
 
     @NotNull
     @Column(name = "jhi_date", nullable = false)
-    private Instant date;//add deal
+    private Instant date;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "message", nullable = false)
-    private String message;
+    private BalanceLogEvent message;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
@@ -64,16 +66,16 @@ public class Notification implements Serializable {
         this.date = date;
     }
 
-    public String getMessage() {
+    public BalanceLogEvent getMessage() {
         return message;
     }
 
-    public Notification message(String message) {
+    public Notification message(BalanceLogEvent message) {
         this.message = message;
         return this;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(BalanceLogEvent message) {
         this.message = message;
     }
 
@@ -96,6 +98,11 @@ public class Notification implements Serializable {
 
     public void setAssociatedDeal(Deal associatedDeal) {
         this.associatedDeal = associatedDeal;
+    }
+
+    public Notification associatedDeal(Deal associatedDeal) {
+        this.associatedDeal = associatedDeal;
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove

@@ -1,10 +1,13 @@
 package com.pavelf.loanexchange.web.rest;
 
 import com.pavelf.loanexchange.domain.Deal;
+import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.repository.DealRepository;
 import com.pavelf.loanexchange.security.SecurityUtils;
 import com.pavelf.loanexchange.service.DealService;
+import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.web.rest.errors.BadRequestAlertException;
+import com.pavelf.loanexchange.web.rest.specifications.DealSpecification;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -46,9 +49,12 @@ public class DealResource {
 
     private final DealService dealService;
 
-    public DealResource(DealRepository dealRepository, DealService dealService) {
+    private final UserService userService;
+
+    public DealResource(DealRepository dealRepository, DealService dealService, UserService userService) {
         this.dealRepository = dealRepository;
         this.dealService = dealService;
+        this.userService = userService;
     }
 
     /**
@@ -119,17 +125,24 @@ public class DealResource {
      */
     @GetMapping("/deals")
     public ResponseEntity<List<Deal>> getAllDeals(Pageable pageable,
+                                                  @RequestParam DealSpecification params,
                                                   @RequestParam MultiValueMap<String, String> queryParams,
                                                   UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of Deals");
-        Page<Deal> page = null;
 
-        if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
-            page = dealRepository.findAll(pageable);
-        } else {
-            page = dealService.findDealsForLoggedInUser(pageable);//todo
+        if (SecurityUtils.isCurrentUserInRole(DEBTOR)) {
+
+            if (params.getForRecipient() != null) {
+                User loggedInUser = userService.getUserWithAuthorities().get();
+                params.setForRecipient(loggedInUser.getId());
+            }
+
+        } else if (SecurityUtils.isCurrentUserInRole(CREDITOR)) {
+            User loggedInUser = userService.getUserWithAuthorities().get();
+            params.setForEmitter(loggedInUser.getId());
         }
 
+        Page<Deal> page = dealRepository.findAll(params, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -141,17 +154,11 @@ public class DealResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the deal, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/deals/{id}")
+    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<Deal> getDeal(@PathVariable Long id) {
         log.debug("REST request to get Deal : {}", id);
-
-        if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
-            Optional<Deal> deal = dealRepository.findById(id);
-            return ResponseUtil.wrapOrNotFound(deal);
-        } else {
-            Optional<Deal> deal = dealService.findDealByIdForLoggedInUser(id);
-            return ResponseUtil.wrapOrNotFound(deal);
-        }
-
+        Optional<Deal> deal = dealRepository.findById(id);
+        return ResponseUtil.wrapOrNotFound(deal);
     }
 
     /**
