@@ -35,6 +35,11 @@
     "otherModules": [],
     "enableTranslation": true,
     "nativeLanguage": "en",
-    "languages": ["en", "ru"]
+    "languages": [
+      "en",
+      "ru"
+    ],
+    "herokuAppName": "loan-exchange-backend",
+    "herokuDeployType": "git"
   }
 }
