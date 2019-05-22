@@ -1,10 +1,17 @@
 import axios from 'axios';
-import { ICrudDeleteAction, ICrudGetAction, ICrudGetAllAction, ICrudPutAction, loadMoreDataWhenScrolled, parseHeaderForLinks } from 'react-jhipster';
+import {
+  parseHeaderForLinks,
+  loadMoreDataWhenScrolled,
+  ICrudGetAction,
+  ICrudGetAllAction,
+  ICrudPutAction,
+  ICrudDeleteAction
+} from 'react-jhipster';
 
 import { cleanEntity } from 'app/shared/util/entity-utils';
-import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
+import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 
-import { defaultValue, INotification } from 'app/shared/model/notification.model';
+import { INotification, defaultValue } from 'app/shared/model/notification.model';
 
 export const ACTION_TYPES = {
   FETCH_NOTIFICATION_LIST: 'notification/FETCH_NOTIFICATION_LIST',

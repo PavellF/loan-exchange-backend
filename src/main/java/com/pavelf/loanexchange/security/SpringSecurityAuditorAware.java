@@ -1,10 +1,11 @@
 package com.pavelf.loanexchange.security;
 
 import com.pavelf.loanexchange.config.Constants;
-import org.springframework.data.domain.AuditorAware;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.stereotype.Component;
 
 /**
  * Implementation of {@link AuditorAware} based on Spring Security.

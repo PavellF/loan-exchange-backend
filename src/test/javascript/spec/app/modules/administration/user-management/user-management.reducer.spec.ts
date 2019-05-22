@@ -4,16 +4,16 @@ import axios from 'axios';
 import thunk from 'redux-thunk';
 import sinon from 'sinon';
 
-import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
+import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 import userManagement, {
   ACTION_TYPES,
-  createUser,
-  deleteUser,
+  getUsers,
   getRoles,
   getUser,
-  getUsers,
-  reset,
-  updateUser
+  createUser,
+  updateUser,
+  deleteUser,
+  reset
 } from 'app/modules/administration/user-management/user-management.reducer';
 import { defaultValue } from 'app/shared/model/user.model';
 

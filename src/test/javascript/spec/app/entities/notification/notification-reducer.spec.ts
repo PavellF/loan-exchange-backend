@@ -6,9 +6,17 @@ import thunk from 'redux-thunk';
 import sinon from 'sinon';
 import { parseHeaderForLinks } from 'react-jhipster';
 
-import reducer, { ACTION_TYPES, createEntity, deleteEntity, getEntities, getEntity, reset, updateEntity } from 'app/entities/notification/notification.reducer';
-import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
-import { defaultValue, INotification } from 'app/shared/model/notification.model';
+import reducer, {
+  ACTION_TYPES,
+  createEntity,
+  deleteEntity,
+  getEntities,
+  getEntity,
+  updateEntity,
+  reset
+} from 'app/entities/notification/notification.reducer';
+import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
+import { INotification, defaultValue } from 'app/shared/model/notification.model';
 
 // tslint:disable no-invalid-template-strings
 describe('Entities reducer tests', () => {

@@ -6,6 +6,7 @@ import com.pavelf.loanexchange.domain.Notification;
 import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import com.pavelf.loanexchange.domain.enumeration.DealStatus;
+import com.pavelf.loanexchange.domain.enumeration.PaymentInterval;
 import com.pavelf.loanexchange.repository.BalanceLogRepository;
 import com.pavelf.loanexchange.repository.DealRepository;
 import com.pavelf.loanexchange.repository.NotificationRepository;
@@ -61,7 +62,7 @@ public class DealService {
         final Instant now = Instant.now();
 
         deal.successRate(computeSuccessRate(deal)).status(DealStatus.PENDING).emitter(loggedInUser)
-            .recipient(null).dateOpen(now).dateBecomeActive(null).termDays(computeTermDays(deal, now));
+            .recipient(null).dateOpen(now).dateBecomeActive(null).endDate(computeEndDate(deal, now));
 
         Deal saved = dealRepository.save(deal);
 
@@ -78,16 +79,16 @@ public class DealService {
         return saved;
     }
 
-    private Integer computeTermDays(Deal deal, Instant now) {
+    private Instant computeEndDate(Deal deal, Instant now) {
         Instant end;
 
-        if (deal.getPaymentEvery() == ChronoUnit.FOREVER) {
+        if (deal.getPaymentEvery() == PaymentInterval.ONE_TIME || deal.getPaymentEvery() == PaymentInterval.DAY) {
             end = now.plus(deal.getTerm(), ChronoUnit.DAYS);
         } else {
-            end = now.plus(deal.getTerm(), deal.getPaymentEvery());
+            end = now.plus(deal.getTerm(), ChronoUnit.MONTHS);
         }
 
-        return (int) Duration.between(now, end).get(ChronoUnit.DAYS);
+        return end;
     }
 
     /**
@@ -125,7 +126,7 @@ public class DealService {
 
         Deal updated = dealRepository.save(deal);
         balanceLogRepository.save(plusOnDebtorAccount);
-        notificationRepository.save(new Notification().date(now).message(BalanceLogEvent.LOAN_TAKEN)
+        notificationRepository.save(new Notification().date(now).type(BalanceLogEvent.LOAN_TAKEN)
             .recipient(deal.getEmitter()).associatedDeal(deal));
 
         return updated;
@@ -150,7 +151,7 @@ public class DealService {
     private int computeSuccessRate(Deal deal) {
         final int term = deal.getTerm();
         final double percent = deal.getPercent().doubleValue();
-        final ChronoUnit paymentEvery = deal.getPaymentEvery();
+        final PaymentInterval paymentEvery = deal.getPaymentEvery();
         double successRate = 100;
 
         // bigger term - bigger successRate
@@ -163,9 +164,9 @@ public class DealService {
         //bigger rate - lesser successRate
         double rateAtomic = 1;
 
-        if (paymentEvery == ChronoUnit.MONTHS) {
+        if (paymentEvery == PaymentInterval.MONTH) {
             rateAtomic = 2;
-        } else if (paymentEvery == ChronoUnit.DAYS) {
+        } else if (paymentEvery == PaymentInterval.DAY) {
             rateAtomic = 18;
         }
 

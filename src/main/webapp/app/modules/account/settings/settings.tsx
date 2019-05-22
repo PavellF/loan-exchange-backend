@@ -1,13 +1,13 @@
 import React from 'react';
-import { Button, Col, Row } from 'reactstrap';
+import { Button, Col, Alert, Row } from 'reactstrap';
 import { connect } from 'react-redux';
 import { Translate, translate } from 'react-jhipster';
-import { AvField, AvForm } from 'availity-reactstrap-validation';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
 
-import { languages, locales } from 'app/config/translation';
+import { locales, languages } from 'app/config/translation';
 import { IRootState } from 'app/shared/reducers';
 import { getSession } from 'app/shared/reducers/authentication';
-import { reset, saveAccountSettings } from './settings.reducer';
+import { saveAccountSettings, reset } from './settings.reducer';
 
 export interface IUserSettingsProps extends StateProps, DispatchProps {}
 

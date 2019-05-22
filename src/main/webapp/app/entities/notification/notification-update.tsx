@@ -1,22 +1,29 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Label, Row } from 'reactstrap';
-import { AvField, AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
+import { Button, Row, Col, Label } from 'reactstrap';
+import { AvFeedback, AvForm, AvGroup, AvInput, AvField } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
-import { Translate, translate } from 'react-jhipster';
+import { Translate, translate, ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
+
+import { IUser } from 'app/shared/model/user.model';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
-import { createEntity, getEntity, reset, updateEntity } from './notification.reducer';
+import { IDeal } from 'app/shared/model/deal.model';
+import { getEntities as getDeals } from 'app/entities/deal/deal.reducer';
+import { getEntity, updateEntity, createEntity, reset } from './notification.reducer';
+import { INotification } from 'app/shared/model/notification.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
+import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface INotificationUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
 export interface INotificationUpdateState {
   isNew: boolean;
   recipientId: string;
+  associatedDealId: string;
 }
 
 export class NotificationUpdate extends React.Component<INotificationUpdateProps, INotificationUpdateState> {
@@ -24,6 +31,7 @@ export class NotificationUpdate extends React.Component<INotificationUpdateProps
     super(props);
     this.state = {
       recipientId: '0',
+      associatedDealId: '0',
       isNew: !this.props.match.params || !this.props.match.params.id
     };
   }
@@ -40,6 +48,7 @@ export class NotificationUpdate extends React.Component<INotificationUpdateProps
     }
 
     this.props.getUsers();
+    this.props.getDeals();
   }
 
   saveEntity = (event, errors, values) => {
@@ -65,7 +74,7 @@ export class NotificationUpdate extends React.Component<INotificationUpdateProps
   };
 
   render() {
-    const { notificationEntity, users, loading, updating } = this.props;
+    const { notificationEntity, users, deals, loading, updating } = this.props;
     const { isNew } = this.state;
 
     return (
@@ -92,12 +101,6 @@ export class NotificationUpdate extends React.Component<INotificationUpdateProps
                   </AvGroup>
                 ) : null}
                 <AvGroup>
-                  <Label id="haveReadLabel" check>
-                    <AvInput id="notification-haveRead" type="checkbox" className="form-control" name="haveRead" />
-                    <Translate contentKey="loanExchangeBackendApp.notification.haveRead">Have Read</Translate>
-                  </Label>
-                </AvGroup>
-                <AvGroup>
                   <Label id="dateLabel" for="notification-date">
                     <Translate contentKey="loanExchangeBackendApp.notification.date">Date</Translate>
                   </Label>
@@ -114,17 +117,32 @@ export class NotificationUpdate extends React.Component<INotificationUpdateProps
                   />
                 </AvGroup>
                 <AvGroup>
-                  <Label id="messageLabel" for="notification-message">
-                    <Translate contentKey="loanExchangeBackendApp.notification.message">Message</Translate>
+                  <Label id="typeLabel" for="notification-type">
+                    <Translate contentKey="loanExchangeBackendApp.notification.type">Type</Translate>
                   </Label>
-                  <AvField
-                    id="notification-message"
-                    type="text"
-                    name="message"
-                    validate={{
-                      required: { value: true, errorMessage: translate('entity.validation.required') }
-                    }}
-                  />
+                  <AvInput
+                    id="notification-type"
+                    type="select"
+                    className="form-control"
+                    name="type"
+                    value={(!isNew && notificationEntity.type) || 'NEW_DEAL_OPEN'}
+                  >
+                    <option value="NEW_DEAL_OPEN">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.NEW_DEAL_OPEN" />
+                    </option>
+                    <option value="LOAN_TAKEN">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.LOAN_TAKEN" />
+                    </option>
+                    <option value="PERCENT_CHARGE">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.PERCENT_CHARGE" />
+                    </option>
+                    <option value="DEAL_PAYMENT">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.DEAL_PAYMENT" />
+                    </option>
+                    <option value="DEAL_CLOSED">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.DEAL_CLOSED" />
+                    </option>
+                  </AvInput>
                 </AvGroup>
                 <AvGroup>
                   <Label for="notification-recipient">
@@ -134,6 +152,21 @@ export class NotificationUpdate extends React.Component<INotificationUpdateProps
                     <option value="" key="0" />
                     {users
                       ? users.map(otherEntity => (
+                          <option value={otherEntity.id} key={otherEntity.id}>
+                            {otherEntity.id}
+                          </option>
+                        ))
+                      : null}
+                  </AvInput>
+                </AvGroup>
+                <AvGroup>
+                  <Label for="notification-associatedDeal">
+                    <Translate contentKey="loanExchangeBackendApp.notification.associatedDeal">Associated Deal</Translate>
+                  </Label>
+                  <AvInput id="notification-associatedDeal" type="select" className="form-control" name="associatedDeal.id">
+                    <option value="" key="0" />
+                    {deals
+                      ? deals.map(otherEntity => (
                           <option value={otherEntity.id} key={otherEntity.id}>
                             {otherEntity.id}
                           </option>
@@ -165,6 +198,7 @@ export class NotificationUpdate extends React.Component<INotificationUpdateProps
 
 const mapStateToProps = (storeState: IRootState) => ({
   users: storeState.userManagement.users,
+  deals: storeState.deal.entities,
   notificationEntity: storeState.notification.entity,
   loading: storeState.notification.loading,
   updating: storeState.notification.updating,
@@ -173,6 +207,7 @@ const mapStateToProps = (storeState: IRootState) => ({
 
 const mapDispatchToProps = {
   getUsers,
+  getDeals,
   getEntity,
   updateEntity,
   createEntity,

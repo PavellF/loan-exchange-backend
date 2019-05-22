@@ -3,7 +3,9 @@ package com.pavelf.loanexchange.web.rest;
 import com.pavelf.loanexchange.LoanExchangeBackendApp;
 import com.pavelf.loanexchange.domain.Notification;
 import com.pavelf.loanexchange.repository.NotificationRepository;
+import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -28,20 +30,18 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 /**
  * Integration tests for the {@Link NotificationResource} REST controller.
  */
 @SpringBootTest(classes = LoanExchangeBackendApp.class)
 public class NotificationResourceIT {
 
-    private static final Boolean DEFAULT_HAVE_READ = false;
-    private static final Boolean UPDATED_HAVE_READ = true;
-
     private static final Instant DEFAULT_DATE = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_DATE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
-    private static final String DEFAULT_MESSAGE = "AAAAAAAAAA";
-    private static final String UPDATED_MESSAGE = "BBBBBBBBBB";
+    private static final BalanceLogEvent DEFAULT_TYPE = BalanceLogEvent.NEW_DEAL_OPEN;
+    private static final BalanceLogEvent UPDATED_TYPE = BalanceLogEvent.LOAN_TAKEN;
 
     @Autowired
     private NotificationRepository notificationRepository;
@@ -59,6 +59,9 @@ public class NotificationResourceIT {
     private EntityManager em;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private Validator validator;
 
     private MockMvc restNotificationMockMvc;
@@ -68,7 +71,7 @@ public class NotificationResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final NotificationResource notificationResource = new NotificationResource(notificationRepository);
+        final NotificationResource notificationResource = new NotificationResource(notificationRepository, userService);
         this.restNotificationMockMvc = MockMvcBuilders.standaloneSetup(notificationResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -85,9 +88,8 @@ public class NotificationResourceIT {
      */
     public static Notification createEntity(EntityManager em) {
         Notification notification = new Notification()
-            .haveRead(DEFAULT_HAVE_READ)
             .date(DEFAULT_DATE)
-            .message(DEFAULT_MESSAGE);
+            .type(DEFAULT_TYPE);
         return notification;
     }
     /**
@@ -98,9 +100,8 @@ public class NotificationResourceIT {
      */
     public static Notification createUpdatedEntity(EntityManager em) {
         Notification notification = new Notification()
-            .haveRead(UPDATED_HAVE_READ)
             .date(UPDATED_DATE)
-            .message(UPDATED_MESSAGE);
+            .type(UPDATED_TYPE);
         return notification;
     }
 
@@ -124,9 +125,8 @@ public class NotificationResourceIT {
         List<Notification> notificationList = notificationRepository.findAll();
         assertThat(notificationList).hasSize(databaseSizeBeforeCreate + 1);
         Notification testNotification = notificationList.get(notificationList.size() - 1);
-        assertThat(testNotification.isHaveRead()).isEqualTo(DEFAULT_HAVE_READ);
         assertThat(testNotification.getDate()).isEqualTo(DEFAULT_DATE);
-        assertThat(testNotification.getMessage()).isEqualTo(DEFAULT_MESSAGE);
+        assertThat(testNotification.getType()).isEqualTo(DEFAULT_TYPE);
     }
 
     @Test
@@ -151,24 +151,6 @@ public class NotificationResourceIT {
 
     @Test
     @Transactional
-    public void checkHaveReadIsRequired() throws Exception {
-        int databaseSizeBeforeTest = notificationRepository.findAll().size();
-        // set the field null
-        notification.setHaveRead(null);
-
-        // Create the Notification, which fails.
-
-        restNotificationMockMvc.perform(post("/api/notifications")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(notification)))
-            .andExpect(status().isBadRequest());
-
-        List<Notification> notificationList = notificationRepository.findAll();
-        assertThat(notificationList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     public void checkDateIsRequired() throws Exception {
         int databaseSizeBeforeTest = notificationRepository.findAll().size();
         // set the field null
@@ -187,10 +169,10 @@ public class NotificationResourceIT {
 
     @Test
     @Transactional
-    public void checkMessageIsRequired() throws Exception {
+    public void checkTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = notificationRepository.findAll().size();
         // set the field null
-        notification.setMessage(null);
+        notification.setType(null);
 
         // Create the Notification, which fails.
 
@@ -214,9 +196,8 @@ public class NotificationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(notification.getId().intValue())))
-            .andExpect(jsonPath("$.[*].haveRead").value(hasItem(DEFAULT_HAVE_READ.booleanValue())))
             .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())))
-            .andExpect(jsonPath("$.[*].message").value(hasItem(DEFAULT_MESSAGE.toString())));
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
     }
     
     @Test
@@ -230,9 +211,8 @@ public class NotificationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(notification.getId().intValue()))
-            .andExpect(jsonPath("$.haveRead").value(DEFAULT_HAVE_READ.booleanValue()))
             .andExpect(jsonPath("$.date").value(DEFAULT_DATE.toString()))
-            .andExpect(jsonPath("$.message").value(DEFAULT_MESSAGE.toString()));
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()));
     }
 
     @Test
@@ -256,9 +236,8 @@ public class NotificationResourceIT {
         // Disconnect from session so that the updates on updatedNotification are not directly saved in db
         em.detach(updatedNotification);
         updatedNotification
-            .haveRead(UPDATED_HAVE_READ)
             .date(UPDATED_DATE)
-            .message(UPDATED_MESSAGE);
+            .type(UPDATED_TYPE);
 
         restNotificationMockMvc.perform(put("/api/notifications")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -269,9 +248,8 @@ public class NotificationResourceIT {
         List<Notification> notificationList = notificationRepository.findAll();
         assertThat(notificationList).hasSize(databaseSizeBeforeUpdate);
         Notification testNotification = notificationList.get(notificationList.size() - 1);
-        assertThat(testNotification.isHaveRead()).isEqualTo(UPDATED_HAVE_READ);
         assertThat(testNotification.getDate()).isEqualTo(UPDATED_DATE);
-        assertThat(testNotification.getMessage()).isEqualTo(UPDATED_MESSAGE);
+        assertThat(testNotification.getType()).isEqualTo(UPDATED_TYPE);
     }
 
     @Test

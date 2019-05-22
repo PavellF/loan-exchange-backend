@@ -1,7 +1,8 @@
 package com.pavelf.loanexchange.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pavelf.loanexchange.config.Constants;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;

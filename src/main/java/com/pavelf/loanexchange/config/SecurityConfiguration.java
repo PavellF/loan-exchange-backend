@@ -1,8 +1,10 @@
 package com.pavelf.loanexchange.config;
 
-import com.pavelf.loanexchange.security.AuthoritiesConstants;
-import com.pavelf.loanexchange.security.jwt.JWTConfigurer;
-import com.pavelf.loanexchange.security.jwt.TokenProvider;
+import com.pavelf.loanexchange.security.*;
+import com.pavelf.loanexchange.security.jwt.*;
+
+import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;

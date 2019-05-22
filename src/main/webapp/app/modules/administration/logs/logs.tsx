@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Translate } from 'react-jhipster';
 
-import { changeLogLevel, getLoggers } from '../administration.reducer';
+import { getLoggers, changeLogLevel } from '../administration.reducer';
 import { IRootState } from 'app/shared/reducers';
 
 export interface ILogsPageProps extends StateProps, DispatchProps {}

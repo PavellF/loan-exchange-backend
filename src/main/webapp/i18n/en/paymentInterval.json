@@ -1,11 +1,10 @@
 {
   "loanExchangeBackendApp": {
-    "Period": {
+    "PaymentInterval": {
       "null": "",
       "DAY": "DAY",
       "MONTH": "MONTH",
-      "YEAR": "YEAR",
-      "ALL_TIME": "ALL_TIME"
+      "ONE_TIME": "ONE_TIME"
     }
   }
 }

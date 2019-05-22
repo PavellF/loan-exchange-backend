@@ -2,14 +2,18 @@ package com.pavelf.loanexchange.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
+
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Objects;
+
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 
 /**
  * A Notification.
@@ -32,14 +36,13 @@ public class Notification implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "message", nullable = false)
-    private BalanceLogEvent message;
+    @Column(name = "jhi_type", nullable = false)
+    private BalanceLogEvent type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private User recipient;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Deal associatedDeal;
@@ -66,17 +69,17 @@ public class Notification implements Serializable {
         this.date = date;
     }
 
-    public BalanceLogEvent getMessage() {
-        return message;
+    public BalanceLogEvent getType() {
+        return type;
     }
 
-    public Notification message(BalanceLogEvent message) {
-        this.message = message;
+    public Notification type(BalanceLogEvent type) {
+        this.type = type;
         return this;
     }
 
-    public void setMessage(BalanceLogEvent message) {
-        this.message = message;
+    public void setType(BalanceLogEvent type) {
+        this.type = type;
     }
 
     public User getRecipient() {
@@ -96,15 +99,14 @@ public class Notification implements Serializable {
         return associatedDeal;
     }
 
-    public void setAssociatedDeal(Deal associatedDeal) {
-        this.associatedDeal = associatedDeal;
-    }
-
-    public Notification associatedDeal(Deal associatedDeal) {
-        this.associatedDeal = associatedDeal;
+    public Notification associatedDeal(Deal deal) {
+        this.associatedDeal = deal;
         return this;
     }
 
+    public void setAssociatedDeal(Deal deal) {
+        this.associatedDeal = deal;
+    }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -128,7 +130,7 @@ public class Notification implements Serializable {
         return "Notification{" +
             "id=" + getId() +
             ", date='" + getDate() + "'" +
-            ", message='" + getMessage() + "'" +
+            ", type='" + getType() + "'" +
             "}";
     }
 }

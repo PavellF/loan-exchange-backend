@@ -3,12 +3,10 @@ package com.pavelf.loanexchange.service.mapper;
 import com.pavelf.loanexchange.domain.Authority;
 import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.service.dto.UserDTO;
+
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +49,6 @@ public class UserMapper {
             user.setImageUrl(userDTO.getImageUrl());
             user.setActivated(userDTO.isActivated());
             user.setLangKey(userDTO.getLangKey());
-            user.setBalance(userDTO.getBalance());
             Set<Authority> authorities = this.authoritiesFromStrings(userDTO.getAuthorities());
             user.setAuthorities(authorities);
             return user;

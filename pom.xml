@@ -5,7 +5,7 @@
 
     <groupId>com.pavelf.loanexchange</groupId>
     <artifactId>loan-exchange-backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Loan Exchange Backend</name>
 

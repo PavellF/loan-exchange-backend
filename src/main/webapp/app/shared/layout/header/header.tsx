@@ -1,12 +1,15 @@
 import './header.scss';
 
 import React from 'react';
-import { Storage, Translate } from 'react-jhipster';
-import { Collapse, Nav, Navbar, NavbarToggler } from 'reactstrap';
+import { Translate, Storage } from 'react-jhipster';
+import { Navbar, Nav, NavbarToggler, NavbarBrand, Collapse } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { NavLink as Link } from 'react-router-dom';
 import LoadingBar from 'react-redux-loading-bar';
 
-import { Brand } from './header-components';
-import { AccountMenu, AdminMenu, EntitiesMenu, LocaleMenu } from '../menus';
+import { Home, Brand } from './header-components';
+import { AdminMenu, EntitiesMenu, AccountMenu, LocaleMenu } from '../menus';
 
 export interface IHeaderProps {
   isAuthenticated: boolean;
@@ -60,6 +63,7 @@ export default class Header extends React.Component<IHeaderProps, IHeaderState> 
           <Brand />
           <Collapse isOpen={this.state.menuOpen} navbar>
             <Nav id="header-tabs" className="ml-auto" navbar>
+              <Home />
               {isAuthenticated && <EntitiesMenu />}
               {isAuthenticated && isAdmin && <AdminMenu showSwagger={isSwaggerEnabled} showDatabase={!isInProduction} />}
               <LocaleMenu currentLocale={currentLocale} onClick={this.handleLocaleChange} />

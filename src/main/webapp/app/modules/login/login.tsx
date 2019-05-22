@@ -32,10 +32,11 @@ export class Login extends React.Component<ILoginProps, ILoginState> {
   };
 
   render() {
-    const { isAuthenticated } = this.props;
+    const { location, isAuthenticated } = this.props;
+    const { from } = location.state || { from: { pathname: '/', search: location.search } };
     const { showModal } = this.state;
     if (isAuthenticated) {
-      return <Redirect to="/admin/metrics" />;
+      return <Redirect to={from} />;
     }
     return (
       <LoginModal showModal={showModal} handleLogin={this.handleLogin} handleClose={this.handleClose} loginError={this.props.loginError} />

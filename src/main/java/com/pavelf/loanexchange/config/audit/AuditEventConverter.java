@@ -1,6 +1,7 @@
 package com.pavelf.loanexchange.config.audit;
 
 import com.pavelf.loanexchange.domain.PersistentAuditEvent;
+
 import org.springframework.boot.actuate.audit.AuditEvent;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;

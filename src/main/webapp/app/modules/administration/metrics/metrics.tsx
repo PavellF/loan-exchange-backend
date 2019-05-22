@@ -1,14 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Col, Row } from 'reactstrap';
+import { Button, Col, Progress, Row, Table } from 'reactstrap';
 import {
   CacheMetrics,
   DatasourceMetrics,
-  EndpointsRequestsMetrics,
   GarbageCollectorMetrics,
   HttpRequestMetrics,
   JvmMemory,
   JvmThreads,
+  EndpointsRequestsMetrics,
   SystemMetrics,
   Translate
 } from 'react-jhipster';

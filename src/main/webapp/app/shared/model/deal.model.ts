@@ -1,11 +1,10 @@
 import { Moment } from 'moment';
 import { IUser } from 'app/shared/model/user.model';
 
-export const enum Period {
+export const enum PaymentInterval {
   DAY = 'DAY',
   MONTH = 'MONTH',
-  YEAR = 'YEAR',
-  ALL_TIME = 'ALL_TIME'
+  ONE_TIME = 'ONE_TIME'
 }
 
 export const enum DealStatus {
@@ -19,22 +18,15 @@ export interface IDeal {
   id?: number;
   dateOpen?: Moment;
   dateBecomeActive?: Moment;
+  endDate?: Moment;
   startBalance?: number;
   percent?: number;
-  fine?: number;
   successRate?: number;
   term?: number;
-  paymentEvery?: Period;
+  paymentEvery?: PaymentInterval;
   status?: DealStatus;
-  autoPaymentEnabled?: boolean;
-  capitalization?: boolean;
-  earlyPayment?: boolean;
   emitter?: IUser;
   recipient?: IUser;
 }
 
-export const defaultValue: Readonly<IDeal> = {
-  autoPaymentEnabled: false,
-  capitalization: false,
-  earlyPayment: false
-};
+export const defaultValue: Readonly<IDeal> = {};

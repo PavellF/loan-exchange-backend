@@ -1,8 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Badge, Button, Row, Table } from 'reactstrap';
-import { getPaginationItemsNumber, getSortState, IPaginationBaseState, JhiPagination, TextFormat, Translate } from 'react-jhipster';
+import { Button, Table, Row, Badge } from 'reactstrap';
+import {
+  Translate,
+  ICrudGetAllAction,
+  ICrudPutAction,
+  TextFormat,
+  JhiPagination,
+  getPaginationItemsNumber,
+  getSortState,
+  IPaginationBaseState
+} from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { APP_DATE_FORMAT } from 'app/config/constants';

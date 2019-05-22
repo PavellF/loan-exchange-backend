@@ -1,15 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Row } from 'reactstrap';
+import { Button, Row, Col } from 'reactstrap';
 // tslint:disable-next-line:no-unused-variable
-import { TextFormat, Translate } from 'react-jhipster';
+import { Translate, ICrudGetAction, TextFormat } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
 import { getEntity } from './deal.reducer';
+import { IDeal } from 'app/shared/model/deal.model';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 
 export interface IDealDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -44,6 +45,14 @@ export class DealDetail extends React.Component<IDealDetailProps> {
               <TextFormat value={dealEntity.dateBecomeActive} type="date" format={APP_DATE_FORMAT} />
             </dd>
             <dt>
+              <span id="endDate">
+                <Translate contentKey="loanExchangeBackendApp.deal.endDate">End Date</Translate>
+              </span>
+            </dt>
+            <dd>
+              <TextFormat value={dealEntity.endDate} type="date" format={APP_DATE_FORMAT} />
+            </dd>
+            <dt>
               <span id="startBalance">
                 <Translate contentKey="loanExchangeBackendApp.deal.startBalance">Start Balance</Translate>
               </span>
@@ -55,12 +64,6 @@ export class DealDetail extends React.Component<IDealDetailProps> {
               </span>
             </dt>
             <dd>{dealEntity.percent}</dd>
-            <dt>
-              <span id="fine">
-                <Translate contentKey="loanExchangeBackendApp.deal.fine">Fine</Translate>
-              </span>
-            </dt>
-            <dd>{dealEntity.fine}</dd>
             <dt>
               <span id="successRate">
                 <Translate contentKey="loanExchangeBackendApp.deal.successRate">Success Rate</Translate>
@@ -85,24 +88,6 @@ export class DealDetail extends React.Component<IDealDetailProps> {
               </span>
             </dt>
             <dd>{dealEntity.status}</dd>
-            <dt>
-              <span id="autoPaymentEnabled">
-                <Translate contentKey="loanExchangeBackendApp.deal.autoPaymentEnabled">Auto Payment Enabled</Translate>
-              </span>
-            </dt>
-            <dd>{dealEntity.autoPaymentEnabled ? 'true' : 'false'}</dd>
-            <dt>
-              <span id="capitalization">
-                <Translate contentKey="loanExchangeBackendApp.deal.capitalization">Capitalization</Translate>
-              </span>
-            </dt>
-            <dd>{dealEntity.capitalization ? 'true' : 'false'}</dd>
-            <dt>
-              <span id="earlyPayment">
-                <Translate contentKey="loanExchangeBackendApp.deal.earlyPayment">Early Payment</Translate>
-              </span>
-            </dt>
-            <dd>{dealEntity.earlyPayment ? 'true' : 'false'}</dd>
             <dt>
               <Translate contentKey="loanExchangeBackendApp.deal.emitter">Emitter</Translate>
             </dt>

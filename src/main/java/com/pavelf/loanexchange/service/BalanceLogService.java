@@ -5,6 +5,7 @@ import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.domain.Notification;
 import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import com.pavelf.loanexchange.domain.enumeration.DealStatus;
+import com.pavelf.loanexchange.domain.enumeration.PaymentInterval;
 import com.pavelf.loanexchange.repository.BalanceLogRepository;
 import com.pavelf.loanexchange.repository.DealRepository;
 import com.pavelf.loanexchange.repository.NotificationRepository;
@@ -86,9 +87,9 @@ public class BalanceLogService {
             if (chargePercent.getCurrentAccountBalance().compareTo(BigDecimal.ZERO) == 0) {
                 deal.setStatus(DealStatus.SUCCESS);
                 dealRepository.save(deal);
-                notificationRepository.save(new Notification().date(now).message(BalanceLogEvent.DEAL_CLOSED)
+                notificationRepository.save(new Notification().date(now).type(BalanceLogEvent.DEAL_CLOSED)
                     .recipient(deal.getRecipient()).associatedDeal(deal));
-                notificationRepository.save(new Notification().date(now).message(BalanceLogEvent.DEAL_CLOSED)
+                notificationRepository.save(new Notification().date(now).type(BalanceLogEvent.DEAL_CLOSED)
                     .recipient(deal.getEmitter()).associatedDeal(deal));
             }
         });
@@ -101,7 +102,7 @@ public class BalanceLogService {
 
         DealSpecification specification = new DealSpecification();
         specification.setWithStatus(DealStatus.ACTIVE);
-        specification.setPaymentEvery(ChronoUnit.DAYS);
+        specification.setPaymentEvery(PaymentInterval.DAY);
 
         List<Deal> activeDeals = dealRepository.findAll(specification);
         processPayments(activeDeals);
@@ -116,7 +117,7 @@ public class BalanceLogService {
 
         DealSpecification specification = new DealSpecification();
         specification.setWithStatus(DealStatus.ACTIVE);
-        specification.setPaymentEvery(ChronoUnit.MONTHS);
+        specification.setPaymentEvery(PaymentInterval.MONTH);
 
         List<Deal> activeDeals = dealRepository.findAll(specification);
         processPayments(activeDeals);
@@ -131,13 +132,10 @@ public class BalanceLogService {
 
         DealSpecification specification = new DealSpecification();
         specification.setWithStatus(DealStatus.ACTIVE);
-        specification.setPaymentEvery(ChronoUnit.FOREVER);
+        specification.setPaymentEvery(PaymentInterval.ONE_TIME);
+        specification.setEndDateIntervalEnd(Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli());
 
-        List<Deal> activeDeals = dealRepository.findAll(specification).stream().filter(deal -> {
-            LocalDate start = LocalDateTime.ofInstant(deal.getDateBecomeActive(), ZoneId.systemDefault()).toLocalDate();
-            LocalDate today = LocalDate.now();
-            return start.isEqual(today);
-        }).collect(Collectors.toList());
+        List<Deal> activeDeals = dealRepository.findAll(specification);
         processPayments(activeDeals);
 
         log.debug("chargePercentForSinglePaymentDeals() ended.");

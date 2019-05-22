@@ -2,15 +2,16 @@ import React from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Table } from 'reactstrap';
+import { Button, Col, Row, Table } from 'reactstrap';
 // tslint:disable-next-line:no-unused-variable
-import { getSortState, IPaginationBaseState, TextFormat, Translate } from 'react-jhipster';
+import { Translate, ICrudGetAllAction, TextFormat, getSortState, IPaginationBaseState } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
 import { getEntities, reset } from './deal.reducer';
+import { IDeal } from 'app/shared/model/deal.model';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 
 export interface IDealProps extends StateProps, DispatchProps, RouteComponentProps<{ url: string }> {}
@@ -96,15 +97,15 @@ export class Deal extends React.Component<IDealProps, IDealState> {
                     <Translate contentKey="loanExchangeBackendApp.deal.dateBecomeActive">Date Become Active</Translate>{' '}
                     <FontAwesomeIcon icon="sort" />
                   </th>
+                  <th className="hand" onClick={this.sort('endDate')}>
+                    <Translate contentKey="loanExchangeBackendApp.deal.endDate">End Date</Translate> <FontAwesomeIcon icon="sort" />
+                  </th>
                   <th className="hand" onClick={this.sort('startBalance')}>
                     <Translate contentKey="loanExchangeBackendApp.deal.startBalance">Start Balance</Translate>{' '}
                     <FontAwesomeIcon icon="sort" />
                   </th>
                   <th className="hand" onClick={this.sort('percent')}>
                     <Translate contentKey="loanExchangeBackendApp.deal.percent">Percent</Translate> <FontAwesomeIcon icon="sort" />
-                  </th>
-                  <th className="hand" onClick={this.sort('fine')}>
-                    <Translate contentKey="loanExchangeBackendApp.deal.fine">Fine</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
                   <th className="hand" onClick={this.sort('successRate')}>
                     <Translate contentKey="loanExchangeBackendApp.deal.successRate">Success Rate</Translate> <FontAwesomeIcon icon="sort" />
@@ -118,18 +119,6 @@ export class Deal extends React.Component<IDealProps, IDealState> {
                   </th>
                   <th className="hand" onClick={this.sort('status')}>
                     <Translate contentKey="loanExchangeBackendApp.deal.status">Status</Translate> <FontAwesomeIcon icon="sort" />
-                  </th>
-                  <th className="hand" onClick={this.sort('autoPaymentEnabled')}>
-                    <Translate contentKey="loanExchangeBackendApp.deal.autoPaymentEnabled">Auto Payment Enabled</Translate>{' '}
-                    <FontAwesomeIcon icon="sort" />
-                  </th>
-                  <th className="hand" onClick={this.sort('capitalization')}>
-                    <Translate contentKey="loanExchangeBackendApp.deal.capitalization">Capitalization</Translate>{' '}
-                    <FontAwesomeIcon icon="sort" />
-                  </th>
-                  <th className="hand" onClick={this.sort('earlyPayment')}>
-                    <Translate contentKey="loanExchangeBackendApp.deal.earlyPayment">Early Payment</Translate>{' '}
-                    <FontAwesomeIcon icon="sort" />
                   </th>
                   <th>
                     <Translate contentKey="loanExchangeBackendApp.deal.emitter">Emitter</Translate> <FontAwesomeIcon icon="sort" />
@@ -154,20 +143,19 @@ export class Deal extends React.Component<IDealProps, IDealState> {
                     <td>
                       <TextFormat type="date" value={deal.dateBecomeActive} format={APP_DATE_FORMAT} />
                     </td>
+                    <td>
+                      <TextFormat type="date" value={deal.endDate} format={APP_DATE_FORMAT} />
+                    </td>
                     <td>{deal.startBalance}</td>
                     <td>{deal.percent}</td>
-                    <td>{deal.fine}</td>
                     <td>{deal.successRate}</td>
                     <td>{deal.term}</td>
                     <td>
-                      <Translate contentKey={`loanExchangeBackendApp.Period.${deal.paymentEvery}`} />
+                      <Translate contentKey={`loanExchangeBackendApp.PaymentInterval.${deal.paymentEvery}`} />
                     </td>
                     <td>
                       <Translate contentKey={`loanExchangeBackendApp.DealStatus.${deal.status}`} />
                     </td>
-                    <td>{deal.autoPaymentEnabled ? 'true' : 'false'}</td>
-                    <td>{deal.capitalization ? 'true' : 'false'}</td>
-                    <td>{deal.earlyPayment ? 'true' : 'false'}</td>
                     <td>{deal.emitter ? deal.emitter.id : ''}</td>
                     <td>{deal.recipient ? deal.recipient.id : ''}</td>
                     <td className="text-right">

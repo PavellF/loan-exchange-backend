@@ -2,18 +2,22 @@ package com.pavelf.loanexchange.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pavelf.loanexchange.domain.enumeration.DealStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.Objects;
+
+import com.pavelf.loanexchange.domain.enumeration.PaymentInterval;
+
+import com.pavelf.loanexchange.domain.enumeration.DealStatus;
 
 /**
  * A Deal.
@@ -30,11 +34,16 @@ public class Deal implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
+    @NotNull
     @Column(name = "date_open", nullable = false)
     private Instant dateOpen;
 
     @Column(name = "date_become_active")
     private Instant dateBecomeActive;
+
+    @NotNull
+    @Column(name = "end_date", nullable = false)
+    private Instant endDate;
 
     @NotNull
     @DecimalMin(value = "0")
@@ -51,10 +60,6 @@ public class Deal implements Serializable {
     private Integer successRate;
 
     @NotNull
-    @Column(name = "term_days", nullable = false)
-    private Integer termDays;
-
-    @NotNull
     @Min(value = 0)
     @Column(name = "term", nullable = false)
     private Integer term;
@@ -62,7 +67,7 @@ public class Deal implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_every", nullable = false)
-    private ChronoUnit paymentEvery;
+    private PaymentInterval paymentEvery;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -110,6 +115,19 @@ public class Deal implements Serializable {
 
     public void setDateBecomeActive(Instant dateBecomeActive) {
         this.dateBecomeActive = dateBecomeActive;
+    }
+
+    public Instant getEndDate() {
+        return endDate;
+    }
+
+    public Deal endDate(Instant endDate) {
+        this.endDate = endDate;
+        return this;
+    }
+
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
     }
 
     public BigDecimal getStartBalance() {
@@ -164,16 +182,16 @@ public class Deal implements Serializable {
         this.term = term;
     }
 
-    public ChronoUnit getPaymentEvery() {
+    public PaymentInterval getPaymentEvery() {
         return paymentEvery;
     }
 
-    public Deal paymentEvery(ChronoUnit paymentEvery) {
+    public Deal paymentEvery(PaymentInterval paymentEvery) {
         this.paymentEvery = paymentEvery;
         return this;
     }
 
-    public void setPaymentEvery(ChronoUnit paymentEvery) {
+    public void setPaymentEvery(PaymentInterval paymentEvery) {
         this.paymentEvery = paymentEvery;
     }
 
@@ -216,27 +234,14 @@ public class Deal implements Serializable {
         this.recipient = user;
     }
 
-    public Integer getTermDays() {
-        return termDays;
-    }
-
-    public void setTermDays(Integer termDays) {
-        this.termDays = termDays;
-    }
-
-    public Deal termDays(Integer termDays) {
-        this.termDays = termDays;
-        return this;
-    }
-
     public BigDecimal getAveragePayment() {
-        if (paymentEvery == ChronoUnit.FOREVER) {
+        if (paymentEvery == PaymentInterval.ONE_TIME) {
             return getStartBalance().multiply(getPercent().add(BigDecimal.ONE));
         }
         BigDecimal term = BigDecimal.valueOf(getTerm());
         BigDecimal overhead = getPercentCharge().multiply(term);
         BigDecimal overallCharged = overhead.add(getStartBalance());
-        return overallCharged.divide(term);
+        return overallCharged.divide(term, RoundingMode.HALF_EVEN);
     }
 
     public BigDecimal getPercentCharge() {
@@ -264,16 +269,16 @@ public class Deal implements Serializable {
     @Override
     public String toString() {
         return "Deal{" +
-            "id=" + id +
-            ", dateOpen=" + dateOpen +
-            ", dateBecomeActive=" + dateBecomeActive +
-            ", startBalance=" + startBalance +
-            ", percent=" + percent +
-            ", successRate=" + successRate +
-            ", termDays=" + termDays +
-            ", term=" + term +
-            ", paymentEvery=" + paymentEvery +
-            ", status=" + status +
-            '}';
+            "id=" + getId() +
+            ", dateOpen='" + getDateOpen() + "'" +
+            ", dateBecomeActive='" + getDateBecomeActive() + "'" +
+            ", endDate='" + getEndDate() + "'" +
+            ", startBalance=" + getStartBalance() +
+            ", percent=" + getPercent() +
+            ", successRate=" + getSuccessRate() +
+            ", term=" + getTerm() +
+            ", paymentEvery='" + getPaymentEvery() + "'" +
+            ", status='" + getStatus() + "'" +
+            "}";
     }
 }

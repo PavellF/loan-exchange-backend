@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import { shallow } from 'enzyme';
 import { TranslatorContext } from 'react-jhipster';
 
-import { hasAnyAuthority, PrivateRouteComponent } from 'app/shared/auth/private-route';
+import { PrivateRouteComponent, hasAnyAuthority } from 'app/shared/auth/private-route';
 
 const TestComp = () => <div>Test</div>;
 

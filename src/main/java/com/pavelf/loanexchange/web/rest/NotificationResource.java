@@ -102,7 +102,7 @@ public class NotificationResource {
      */
     @GetMapping("/notifications")
     public ResponseEntity<List<Notification>> getAllNotifications(Pageable pageable,
-                                                                  @RequestParam NotificationSpecification params,
+                                                                  NotificationSpecification params,
                                                                   @RequestParam MultiValueMap<String, String> queryParams,
                                                                   UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of Notifications");

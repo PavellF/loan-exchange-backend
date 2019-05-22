@@ -1,0 +1,11 @@
+{
+  "loanExchangeBackendApp": {
+    "DealStatus": {
+      "null": "",
+      "PENDING": "PENDING",
+      "ACTIVE": "ACTIVE",
+      "CLOSED": "CLOSED",
+      "SUCCESS": "SUCCESS"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
+import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 import thunk from 'redux-thunk';
 import axios from 'axios';
 import sinon from 'sinon';
@@ -6,7 +6,14 @@ import { Storage } from 'react-jhipster';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 
-import authentication, { ACTION_TYPES, clearAuthentication, clearAuthToken, getSession, login, logout } from 'app/shared/reducers/authentication';
+import authentication, {
+  ACTION_TYPES,
+  getSession,
+  login,
+  clearAuthentication,
+  logout,
+  clearAuthToken
+} from 'app/shared/reducers/authentication';
 import { ACTION_TYPES as localeActionTypes } from 'app/shared/reducers/locale';
 
 describe('Authentication reducer tests', () => {

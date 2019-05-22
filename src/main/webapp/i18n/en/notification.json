@@ -15,10 +15,10 @@
       "detail": {
         "title": "Notification"
       },
-      "haveRead": "Have Read",
       "date": "Date",
-      "message": "Message",
-      "recipient": "Recipient"
+      "type": "Type",
+      "recipient": "Recipient",
+      "associatedDeal": "Associated Deal"
     }
   }
 }

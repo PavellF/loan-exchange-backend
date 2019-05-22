@@ -1,16 +1,20 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Label, Row } from 'reactstrap';
-import { AvField, AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
+import { Button, Row, Col, Label } from 'reactstrap';
+import { AvFeedback, AvForm, AvGroup, AvInput, AvField } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
-import { Translate, translate } from 'react-jhipster';
+import { Translate, translate, ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
+
+import { IUser } from 'app/shared/model/user.model';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
-import { createEntity, getEntity, reset, updateEntity } from './deal.reducer';
+import { getEntity, updateEntity, createEntity, reset } from './deal.reducer';
+import { IDeal } from 'app/shared/model/deal.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
+import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IDealUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -47,6 +51,7 @@ export class DealUpdate extends React.Component<IDealUpdateProps, IDealUpdateSta
   saveEntity = (event, errors, values) => {
     values.dateOpen = convertDateTimeToServer(values.dateOpen);
     values.dateBecomeActive = convertDateTimeToServer(values.dateBecomeActive);
+    values.endDate = convertDateTimeToServer(values.endDate);
 
     if (errors.length === 0) {
       const { dealEntity } = this.props;
@@ -124,6 +129,22 @@ export class DealUpdate extends React.Component<IDealUpdateProps, IDealUpdateSta
                   />
                 </AvGroup>
                 <AvGroup>
+                  <Label id="endDateLabel" for="deal-endDate">
+                    <Translate contentKey="loanExchangeBackendApp.deal.endDate">End Date</Translate>
+                  </Label>
+                  <AvInput
+                    id="deal-endDate"
+                    type="datetime-local"
+                    className="form-control"
+                    name="endDate"
+                    placeholder={'YYYY-MM-DD HH:mm'}
+                    value={isNew ? null : convertDateTimeFromServer(this.props.dealEntity.endDate)}
+                    validate={{
+                      required: { value: true, errorMessage: translate('entity.validation.required') }
+                    }}
+                  />
+                </AvGroup>
+                <AvGroup>
                   <Label id="startBalanceLabel" for="deal-startBalance">
                     <Translate contentKey="loanExchangeBackendApp.deal.startBalance">Start Balance</Translate>
                   </Label>
@@ -148,20 +169,6 @@ export class DealUpdate extends React.Component<IDealUpdateProps, IDealUpdateSta
                     name="percent"
                     validate={{
                       required: { value: true, errorMessage: translate('entity.validation.required') },
-                      min: { value: 0, errorMessage: translate('entity.validation.min', { min: 0 }) },
-                      number: { value: true, errorMessage: translate('entity.validation.number') }
-                    }}
-                  />
-                </AvGroup>
-                <AvGroup>
-                  <Label id="fineLabel" for="deal-fine">
-                    <Translate contentKey="loanExchangeBackendApp.deal.fine">Fine</Translate>
-                  </Label>
-                  <AvField
-                    id="deal-fine"
-                    type="text"
-                    name="fine"
-                    validate={{
                       min: { value: 0, errorMessage: translate('entity.validation.min', { min: 0 }) },
                       number: { value: true, errorMessage: translate('entity.validation.number') }
                     }}
@@ -210,16 +217,13 @@ export class DealUpdate extends React.Component<IDealUpdateProps, IDealUpdateSta
                     value={(!isNew && dealEntity.paymentEvery) || 'DAY'}
                   >
                     <option value="DAY">
-                      <Translate contentKey="loanExchangeBackendApp.Period.DAY" />
+                      <Translate contentKey="loanExchangeBackendApp.PaymentInterval.DAY" />
                     </option>
                     <option value="MONTH">
-                      <Translate contentKey="loanExchangeBackendApp.Period.MONTH" />
+                      <Translate contentKey="loanExchangeBackendApp.PaymentInterval.MONTH" />
                     </option>
-                    <option value="YEAR">
-                      <Translate contentKey="loanExchangeBackendApp.Period.YEAR" />
-                    </option>
-                    <option value="ALL_TIME">
-                      <Translate contentKey="loanExchangeBackendApp.Period.ALL_TIME" />
+                    <option value="ONE_TIME">
+                      <Translate contentKey="loanExchangeBackendApp.PaymentInterval.ONE_TIME" />
                     </option>
                   </AvInput>
                 </AvGroup>
@@ -247,24 +251,6 @@ export class DealUpdate extends React.Component<IDealUpdateProps, IDealUpdateSta
                       <Translate contentKey="loanExchangeBackendApp.DealStatus.SUCCESS" />
                     </option>
                   </AvInput>
-                </AvGroup>
-                <AvGroup>
-                  <Label id="autoPaymentEnabledLabel" check>
-                    <AvInput id="deal-autoPaymentEnabled" type="checkbox" className="form-control" name="autoPaymentEnabled" />
-                    <Translate contentKey="loanExchangeBackendApp.deal.autoPaymentEnabled">Auto Payment Enabled</Translate>
-                  </Label>
-                </AvGroup>
-                <AvGroup>
-                  <Label id="capitalizationLabel" check>
-                    <AvInput id="deal-capitalization" type="checkbox" className="form-control" name="capitalization" />
-                    <Translate contentKey="loanExchangeBackendApp.deal.capitalization">Capitalization</Translate>
-                  </Label>
-                </AvGroup>
-                <AvGroup>
-                  <Label id="earlyPaymentLabel" check>
-                    <AvInput id="deal-earlyPayment" type="checkbox" className="form-control" name="earlyPayment" />
-                    <Translate contentKey="loanExchangeBackendApp.deal.earlyPayment">Early Payment</Translate>
-                  </Label>
                 </AvGroup>
                 <AvGroup>
                   <Label for="deal-emitter">

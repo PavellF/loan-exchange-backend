@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
 
     <!--
         Added the entity Deal.
     -->
-    <changeSet id="20190519125840-1" author="jhipster">
+    <changeSet id="20190521215845-1" author="jhipster">
         <createTable tableName="deal">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
@@ -19,6 +21,10 @@
 
             <column name="date_become_active" type="datetime">
                 <constraints nullable="true" />
+            </column>
+
+            <column name="end_date" type="datetime">
+                <constraints nullable="false" />
             </column>
 
             <column name="start_balance" type="decimal(21,2)">
@@ -34,10 +40,6 @@
             </column>
 
             <column name="term" type="integer">
-                <constraints nullable="false" />
-            </column>
-
-            <column name="term_days" type="integer">
                 <constraints nullable="false" />
             </column>
 
@@ -62,6 +64,7 @@
 
         <dropDefaultValue tableName="deal" columnName="date_open" columnDataType="datetime"/>
         <dropDefaultValue tableName="deal" columnName="date_become_active" columnDataType="datetime"/>
+        <dropDefaultValue tableName="deal" columnName="end_date" columnDataType="datetime"/>
     </changeSet>
 
     <!--
@@ -72,7 +75,7 @@
           This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
           Spring Boot configuration key.
     -->
-    <changeSet id="20190519125840-1-data" author="jhipster" context="faker">
+    <changeSet id="20190521215845-1-data" author="jhipster" context="faker">
         <loadData
                   file="config/liquibase/data/deal.csv"
                   separator=";"
@@ -81,17 +84,17 @@
             <column name="id" type="numeric"/>
             <column name="date_open" type="date"/>
             <column name="date_become_active" type="date"/>
+            <column name="end_date" type="date"/>
             <column name="start_balance" type="numeric"/>
             <column name="jhi_percent" type="numeric"/>
             <column name="success_rate" type="numeric"/>
             <column name="term" type="numeric"/>
-            <column name="term_days" type="numeric"/>
             <column name="payment_every" type="string"/>
             <column name="status" type="string"/>
         </loadData>
     </changeSet>
 
-    <changeSet id="20190519125840-1-relations" author="jhipster">
+    <changeSet id="20190521215845-1-relations" author="jhipster">
 
     </changeSet>
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->

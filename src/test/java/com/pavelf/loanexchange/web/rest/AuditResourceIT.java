@@ -4,6 +4,7 @@ import com.pavelf.loanexchange.LoanExchangeBackendApp;
 import com.pavelf.loanexchange.config.audit.AuditEventConverter;
 import com.pavelf.loanexchange.domain.PersistentAuditEvent;
 import com.pavelf.loanexchange.repository.PersistenceAuditEventRepository;
+
 import com.pavelf.loanexchange.service.AuditEventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -2,10 +2,11 @@ package com.pavelf.loanexchange.web.rest;
 
 import com.pavelf.loanexchange.LoanExchangeBackendApp;
 import com.pavelf.loanexchange.domain.Deal;
-import com.pavelf.loanexchange.domain.enumeration.DealStatus;
-import com.pavelf.loanexchange.domain.enumeration.Period;
 import com.pavelf.loanexchange.repository.DealRepository;
+import com.pavelf.loanexchange.service.DealService;
+import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -30,6 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import com.pavelf.loanexchange.domain.enumeration.PaymentInterval;
+import com.pavelf.loanexchange.domain.enumeration.DealStatus;
 /**
  * Integration tests for the {@Link DealResource} REST controller.
  */
@@ -42,14 +46,14 @@ public class DealResourceIT {
     private static final Instant DEFAULT_DATE_BECOME_ACTIVE = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_DATE_BECOME_ACTIVE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
+    private static final Instant DEFAULT_END_DATE = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_END_DATE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+
     private static final BigDecimal DEFAULT_START_BALANCE = new BigDecimal(0);
     private static final BigDecimal UPDATED_START_BALANCE = new BigDecimal(1);
 
     private static final BigDecimal DEFAULT_PERCENT = new BigDecimal(0);
     private static final BigDecimal UPDATED_PERCENT = new BigDecimal(1);
-
-    private static final BigDecimal DEFAULT_FINE = new BigDecimal(0);
-    private static final BigDecimal UPDATED_FINE = new BigDecimal(1);
 
     private static final Integer DEFAULT_SUCCESS_RATE = 1;
     private static final Integer UPDATED_SUCCESS_RATE = 2;
@@ -57,20 +61,11 @@ public class DealResourceIT {
     private static final Integer DEFAULT_TERM = 0;
     private static final Integer UPDATED_TERM = 1;
 
-    private static final Period DEFAULT_PAYMENT_EVERY = Period.DAY;
-    private static final Period UPDATED_PAYMENT_EVERY = Period.MONTH;
+    private static final PaymentInterval DEFAULT_PAYMENT_EVERY = PaymentInterval.DAY;
+    private static final PaymentInterval UPDATED_PAYMENT_EVERY = PaymentInterval.MONTH;
 
     private static final DealStatus DEFAULT_STATUS = DealStatus.PENDING;
     private static final DealStatus UPDATED_STATUS = DealStatus.ACTIVE;
-
-    private static final Boolean DEFAULT_AUTO_PAYMENT_ENABLED = false;
-    private static final Boolean UPDATED_AUTO_PAYMENT_ENABLED = true;
-
-    private static final Boolean DEFAULT_CAPITALIZATION = false;
-    private static final Boolean UPDATED_CAPITALIZATION = true;
-
-    private static final Boolean DEFAULT_EARLY_PAYMENT = false;
-    private static final Boolean UPDATED_EARLY_PAYMENT = true;
 
     @Autowired
     private DealRepository dealRepository;
@@ -88,6 +83,12 @@ public class DealResourceIT {
     private EntityManager em;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
+    private DealService dealService;
+
+    @Autowired
     private Validator validator;
 
     private MockMvc restDealMockMvc;
@@ -97,7 +98,7 @@ public class DealResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final DealResource dealResource = new DealResource(dealRepository, userService, dealService);
+        final DealResource dealResource = new DealResource(dealRepository, dealService, userService);
         this.restDealMockMvc = MockMvcBuilders.standaloneSetup(dealResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -116,16 +117,13 @@ public class DealResourceIT {
         Deal deal = new Deal()
             .dateOpen(DEFAULT_DATE_OPEN)
             .dateBecomeActive(DEFAULT_DATE_BECOME_ACTIVE)
+            .endDate(DEFAULT_END_DATE)
             .startBalance(DEFAULT_START_BALANCE)
             .percent(DEFAULT_PERCENT)
-            .fine(DEFAULT_FINE)
             .successRate(DEFAULT_SUCCESS_RATE)
             .term(DEFAULT_TERM)
             .paymentEvery(DEFAULT_PAYMENT_EVERY)
-            .status(DEFAULT_STATUS)
-            .autoPaymentEnabled(DEFAULT_AUTO_PAYMENT_ENABLED)
-            .capitalization(DEFAULT_CAPITALIZATION)
-            .earlyPayment(DEFAULT_EARLY_PAYMENT);
+            .status(DEFAULT_STATUS);
         return deal;
     }
     /**
@@ -138,16 +136,13 @@ public class DealResourceIT {
         Deal deal = new Deal()
             .dateOpen(UPDATED_DATE_OPEN)
             .dateBecomeActive(UPDATED_DATE_BECOME_ACTIVE)
+            .endDate(UPDATED_END_DATE)
             .startBalance(UPDATED_START_BALANCE)
             .percent(UPDATED_PERCENT)
-            .fine(UPDATED_FINE)
             .successRate(UPDATED_SUCCESS_RATE)
             .term(UPDATED_TERM)
             .paymentEvery(UPDATED_PAYMENT_EVERY)
-            .status(UPDATED_STATUS)
-            .autoPaymentEnabled(UPDATED_AUTO_PAYMENT_ENABLED)
-            .capitalization(UPDATED_CAPITALIZATION)
-            .earlyPayment(UPDATED_EARLY_PAYMENT);
+            .status(UPDATED_STATUS);
         return deal;
     }
 
@@ -173,16 +168,13 @@ public class DealResourceIT {
         Deal testDeal = dealList.get(dealList.size() - 1);
         assertThat(testDeal.getDateOpen()).isEqualTo(DEFAULT_DATE_OPEN);
         assertThat(testDeal.getDateBecomeActive()).isEqualTo(DEFAULT_DATE_BECOME_ACTIVE);
+        assertThat(testDeal.getEndDate()).isEqualTo(DEFAULT_END_DATE);
         assertThat(testDeal.getStartBalance()).isEqualTo(DEFAULT_START_BALANCE);
         assertThat(testDeal.getPercent()).isEqualTo(DEFAULT_PERCENT);
-        assertThat(testDeal.getFine()).isEqualTo(DEFAULT_FINE);
         assertThat(testDeal.getSuccessRate()).isEqualTo(DEFAULT_SUCCESS_RATE);
         assertThat(testDeal.getTerm()).isEqualTo(DEFAULT_TERM);
         assertThat(testDeal.getPaymentEvery()).isEqualTo(DEFAULT_PAYMENT_EVERY);
         assertThat(testDeal.getStatus()).isEqualTo(DEFAULT_STATUS);
-        assertThat(testDeal.isAutoPaymentEnabled()).isEqualTo(DEFAULT_AUTO_PAYMENT_ENABLED);
-        assertThat(testDeal.isCapitalization()).isEqualTo(DEFAULT_CAPITALIZATION);
-        assertThat(testDeal.isEarlyPayment()).isEqualTo(DEFAULT_EARLY_PAYMENT);
     }
 
     @Test
@@ -211,6 +203,24 @@ public class DealResourceIT {
         int databaseSizeBeforeTest = dealRepository.findAll().size();
         // set the field null
         deal.setDateOpen(null);
+
+        // Create the Deal, which fails.
+
+        restDealMockMvc.perform(post("/api/deals")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(deal)))
+            .andExpect(status().isBadRequest());
+
+        List<Deal> dealList = dealRepository.findAll();
+        assertThat(dealList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    public void checkEndDateIsRequired() throws Exception {
+        int databaseSizeBeforeTest = dealRepository.findAll().size();
+        // set the field null
+        deal.setEndDate(null);
 
         // Create the Deal, which fails.
 
@@ -333,60 +343,6 @@ public class DealResourceIT {
 
     @Test
     @Transactional
-    public void checkAutoPaymentEnabledIsRequired() throws Exception {
-        int databaseSizeBeforeTest = dealRepository.findAll().size();
-        // set the field null
-        deal.setAutoPaymentEnabled(null);
-
-        // Create the Deal, which fails.
-
-        restDealMockMvc.perform(post("/api/deals")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(deal)))
-            .andExpect(status().isBadRequest());
-
-        List<Deal> dealList = dealRepository.findAll();
-        assertThat(dealList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    public void checkCapitalizationIsRequired() throws Exception {
-        int databaseSizeBeforeTest = dealRepository.findAll().size();
-        // set the field null
-        deal.setCapitalization(null);
-
-        // Create the Deal, which fails.
-
-        restDealMockMvc.perform(post("/api/deals")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(deal)))
-            .andExpect(status().isBadRequest());
-
-        List<Deal> dealList = dealRepository.findAll();
-        assertThat(dealList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    public void checkEarlyPaymentIsRequired() throws Exception {
-        int databaseSizeBeforeTest = dealRepository.findAll().size();
-        // set the field null
-        deal.setEarlyPayment(null);
-
-        // Create the Deal, which fails.
-
-        restDealMockMvc.perform(post("/api/deals")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(deal)))
-            .andExpect(status().isBadRequest());
-
-        List<Deal> dealList = dealRepository.findAll();
-        assertThat(dealList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     public void getAllDeals() throws Exception {
         // Initialize the database
         dealRepository.saveAndFlush(deal);
@@ -398,16 +354,13 @@ public class DealResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(deal.getId().intValue())))
             .andExpect(jsonPath("$.[*].dateOpen").value(hasItem(DEFAULT_DATE_OPEN.toString())))
             .andExpect(jsonPath("$.[*].dateBecomeActive").value(hasItem(DEFAULT_DATE_BECOME_ACTIVE.toString())))
+            .andExpect(jsonPath("$.[*].endDate").value(hasItem(DEFAULT_END_DATE.toString())))
             .andExpect(jsonPath("$.[*].startBalance").value(hasItem(DEFAULT_START_BALANCE.intValue())))
             .andExpect(jsonPath("$.[*].percent").value(hasItem(DEFAULT_PERCENT.intValue())))
-            .andExpect(jsonPath("$.[*].fine").value(hasItem(DEFAULT_FINE.intValue())))
             .andExpect(jsonPath("$.[*].successRate").value(hasItem(DEFAULT_SUCCESS_RATE)))
             .andExpect(jsonPath("$.[*].term").value(hasItem(DEFAULT_TERM)))
             .andExpect(jsonPath("$.[*].paymentEvery").value(hasItem(DEFAULT_PAYMENT_EVERY.toString())))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
-            .andExpect(jsonPath("$.[*].autoPaymentEnabled").value(hasItem(DEFAULT_AUTO_PAYMENT_ENABLED.booleanValue())))
-            .andExpect(jsonPath("$.[*].capitalization").value(hasItem(DEFAULT_CAPITALIZATION.booleanValue())))
-            .andExpect(jsonPath("$.[*].earlyPayment").value(hasItem(DEFAULT_EARLY_PAYMENT.booleanValue())));
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
     }
     
     @Test
@@ -423,16 +376,13 @@ public class DealResourceIT {
             .andExpect(jsonPath("$.id").value(deal.getId().intValue()))
             .andExpect(jsonPath("$.dateOpen").value(DEFAULT_DATE_OPEN.toString()))
             .andExpect(jsonPath("$.dateBecomeActive").value(DEFAULT_DATE_BECOME_ACTIVE.toString()))
+            .andExpect(jsonPath("$.endDate").value(DEFAULT_END_DATE.toString()))
             .andExpect(jsonPath("$.startBalance").value(DEFAULT_START_BALANCE.intValue()))
             .andExpect(jsonPath("$.percent").value(DEFAULT_PERCENT.intValue()))
-            .andExpect(jsonPath("$.fine").value(DEFAULT_FINE.intValue()))
             .andExpect(jsonPath("$.successRate").value(DEFAULT_SUCCESS_RATE))
             .andExpect(jsonPath("$.term").value(DEFAULT_TERM))
             .andExpect(jsonPath("$.paymentEvery").value(DEFAULT_PAYMENT_EVERY.toString()))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
-            .andExpect(jsonPath("$.autoPaymentEnabled").value(DEFAULT_AUTO_PAYMENT_ENABLED.booleanValue()))
-            .andExpect(jsonPath("$.capitalization").value(DEFAULT_CAPITALIZATION.booleanValue()))
-            .andExpect(jsonPath("$.earlyPayment").value(DEFAULT_EARLY_PAYMENT.booleanValue()));
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
     }
 
     @Test
@@ -458,16 +408,13 @@ public class DealResourceIT {
         updatedDeal
             .dateOpen(UPDATED_DATE_OPEN)
             .dateBecomeActive(UPDATED_DATE_BECOME_ACTIVE)
+            .endDate(UPDATED_END_DATE)
             .startBalance(UPDATED_START_BALANCE)
             .percent(UPDATED_PERCENT)
-            .fine(UPDATED_FINE)
             .successRate(UPDATED_SUCCESS_RATE)
             .term(UPDATED_TERM)
             .paymentEvery(UPDATED_PAYMENT_EVERY)
-            .status(UPDATED_STATUS)
-            .autoPaymentEnabled(UPDATED_AUTO_PAYMENT_ENABLED)
-            .capitalization(UPDATED_CAPITALIZATION)
-            .earlyPayment(UPDATED_EARLY_PAYMENT);
+            .status(UPDATED_STATUS);
 
         restDealMockMvc.perform(put("/api/deals")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -480,16 +427,13 @@ public class DealResourceIT {
         Deal testDeal = dealList.get(dealList.size() - 1);
         assertThat(testDeal.getDateOpen()).isEqualTo(UPDATED_DATE_OPEN);
         assertThat(testDeal.getDateBecomeActive()).isEqualTo(UPDATED_DATE_BECOME_ACTIVE);
+        assertThat(testDeal.getEndDate()).isEqualTo(UPDATED_END_DATE);
         assertThat(testDeal.getStartBalance()).isEqualTo(UPDATED_START_BALANCE);
         assertThat(testDeal.getPercent()).isEqualTo(UPDATED_PERCENT);
-        assertThat(testDeal.getFine()).isEqualTo(UPDATED_FINE);
         assertThat(testDeal.getSuccessRate()).isEqualTo(UPDATED_SUCCESS_RATE);
         assertThat(testDeal.getTerm()).isEqualTo(UPDATED_TERM);
         assertThat(testDeal.getPaymentEvery()).isEqualTo(UPDATED_PAYMENT_EVERY);
         assertThat(testDeal.getStatus()).isEqualTo(UPDATED_STATUS);
-        assertThat(testDeal.isAutoPaymentEnabled()).isEqualTo(UPDATED_AUTO_PAYMENT_ENABLED);
-        assertThat(testDeal.isCapitalization()).isEqualTo(UPDATED_CAPITALIZATION);
-        assertThat(testDeal.isEarlyPayment()).isEqualTo(UPDATED_EARLY_PAYMENT);
     }
 
     @Test

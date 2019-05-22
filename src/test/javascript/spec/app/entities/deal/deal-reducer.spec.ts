@@ -6,9 +6,17 @@ import thunk from 'redux-thunk';
 import sinon from 'sinon';
 import { parseHeaderForLinks } from 'react-jhipster';
 
-import reducer, { ACTION_TYPES, createEntity, deleteEntity, getEntities, getEntity, reset, updateEntity } from 'app/entities/deal/deal.reducer';
-import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
-import { defaultValue, IDeal } from 'app/shared/model/deal.model';
+import reducer, {
+  ACTION_TYPES,
+  createEntity,
+  deleteEntity,
+  getEntities,
+  getEntity,
+  updateEntity,
+  reset
+} from 'app/entities/deal/deal.reducer';
+import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
+import { IDeal, defaultValue } from 'app/shared/model/deal.model';
 
 // tslint:disable no-invalid-template-strings
 describe('Entities reducer tests', () => {

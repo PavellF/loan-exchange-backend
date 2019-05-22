@@ -2,15 +2,16 @@ import React from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Table } from 'reactstrap';
+import { Button, Col, Row, Table } from 'reactstrap';
 // tslint:disable-next-line:no-unused-variable
-import { getSortState, IPaginationBaseState, TextFormat, Translate } from 'react-jhipster';
+import { Translate, ICrudGetAllAction, TextFormat, getSortState, IPaginationBaseState } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
 import { getEntities, reset } from './balance-log.reducer';
+import { IBalanceLog } from 'app/shared/model/balance-log.model';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 
 export interface IBalanceLogProps extends StateProps, DispatchProps, RouteComponentProps<{ url: string }> {}
@@ -124,7 +125,9 @@ export class BalanceLog extends React.Component<IBalanceLogProps, IBalanceLogSta
                     </td>
                     <td>{balanceLog.oldValue}</td>
                     <td>{balanceLog.amountChanged}</td>
-                    <td>{balanceLog.type}</td>
+                    <td>
+                      <Translate contentKey={`loanExchangeBackendApp.BalanceLogEvent.${balanceLog.type}`} />
+                    </td>
                     <td>{balanceLog.account ? balanceLog.account.id : ''}</td>
                     <td>{balanceLog.deal ? <Link to={`deal/${balanceLog.deal.id}`}>{balanceLog.deal.id}</Link> : ''}</td>
                     <td className="text-right">

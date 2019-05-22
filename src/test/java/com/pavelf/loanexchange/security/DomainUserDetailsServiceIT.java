@@ -3,6 +3,7 @@ package com.pavelf.loanexchange.security;
 import com.pavelf.loanexchange.LoanExchangeBackendApp;
 import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.repository.UserRepository;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

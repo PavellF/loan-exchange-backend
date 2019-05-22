@@ -17,16 +17,13 @@
       },
       "dateOpen": "Date Open",
       "dateBecomeActive": "Date Become Active",
+      "endDate": "End Date",
       "startBalance": "Start Balance",
       "percent": "Percent",
-      "fine": "Fine",
       "successRate": "Success Rate",
       "term": "Term",
       "paymentEvery": "Payment Every",
       "status": "Status",
-      "autoPaymentEnabled": "Auto Payment Enabled",
-      "capitalization": "Capitalization",
-      "earlyPayment": "Early Payment",
       "emitter": "Emitter",
       "recipient": "Recipient"
     }

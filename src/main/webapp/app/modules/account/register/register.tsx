@@ -1,8 +1,8 @@
 import React from 'react';
 import { Translate, translate } from 'react-jhipster';
 import { connect } from 'react-redux';
-import { AvField, AvForm } from 'availity-reactstrap-validation';
-import { Button, Col, Row } from 'reactstrap';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
+import { Row, Col, Alert, Button } from 'reactstrap';
 
 import PasswordStrengthBar from 'app/shared/layout/password/password-strength-bar';
 import { IRootState } from 'app/shared/reducers';
@@ -96,6 +96,22 @@ export class RegisterPage extends React.Component<IRegisterProps, IRegisterState
                 <Translate contentKey="register.form.button">Register</Translate>
               </Button>
             </AvForm>
+            <p>&nbsp;</p>
+            <Alert color="warning">
+              <span>
+                <Translate contentKey="global.messages.info.authenticated.prefix">If you want to </Translate>
+              </span>
+              <a className="alert-link">
+                <Translate contentKey="global.messages.info.authenticated.link"> sign in</Translate>
+              </a>
+              <span>
+                <Translate contentKey="global.messages.info.authenticated.suffix">
+                  , you can try the default accounts:
+                  <br />- Administrator (login="admin" and password="admin")
+                  <br />- User (login="user" and password="user").
+                </Translate>
+              </span>
+            </Alert>
           </Col>
         </Row>
       </div>

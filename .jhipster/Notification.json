@@ -2,13 +2,6 @@
     "name": "Notification",
     "fields": [
         {
-            "fieldName": "haveRead",
-            "fieldType": "Boolean",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
             "fieldName": "date",
             "fieldType": "Instant",
             "fieldValidateRules": [
@@ -16,8 +9,9 @@
             ]
         },
         {
-            "fieldName": "message",
-            "fieldType": "String",
+            "fieldName": "type",
+            "fieldType": "BalanceLogEvent",
+            "fieldValues": "NEW_DEAL_OPEN,LOAN_TAKEN,PERCENT_CHARGE,DEAL_PAYMENT,DEAL_CLOSED",
             "fieldValidateRules": [
                 "required"
             ]
@@ -30,9 +24,16 @@
             "otherEntityRelationshipName": "notification",
             "relationshipName": "recipient",
             "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "deal",
+            "otherEntityRelationshipName": "notification",
+            "relationshipName": "associatedDeal",
+            "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20190519125842",
+    "changelogDate": "20190521215847",
     "entityTableName": "notification",
     "dto": "no",
     "pagination": "infinite-scroll",

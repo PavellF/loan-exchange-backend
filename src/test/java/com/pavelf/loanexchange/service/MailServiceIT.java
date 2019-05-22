@@ -1,7 +1,8 @@
 package com.pavelf.loanexchange.service;
 
-import com.pavelf.loanexchange.LoanExchangeBackendApp;
 import com.pavelf.loanexchange.config.Constants;
+
+import com.pavelf.loanexchange.LoanExchangeBackendApp;
 import com.pavelf.loanexchange.domain.User;
 import io.github.jhipster.config.JHipsterProperties;
 import org.junit.jupiter.api.BeforeEach;

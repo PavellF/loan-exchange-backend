@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Storage } from 'react-jhipster';
+import { getBasePath, Storage } from 'react-jhipster';
 
 import { SERVER_API_URL } from 'app/config/constants';
 

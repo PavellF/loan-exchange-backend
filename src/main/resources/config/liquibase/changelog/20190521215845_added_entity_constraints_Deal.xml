@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity Deal.
     -->
-    <changeSet id="20190519125840-2" author="jhipster">
+    <changeSet id="20190521215845-2" author="jhipster">
         
         <addForeignKeyConstraint baseColumnNames="emitter_id"
                                  baseTableName="deal"

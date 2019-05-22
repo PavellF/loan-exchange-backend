@@ -8,8 +8,7 @@ export const SERVER_API_URL = process.env.SERVER_API_URL;
 
 export const AUTHORITIES = {
   ADMIN: 'ROLE_ADMIN',
-  CREDITOR: 'ROLE_CREDITOR',
-  DEBTOR: 'ROLE_DEBTOR'
+  USER: 'ROLE_USER'
 };
 
 export const messages = {

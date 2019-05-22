@@ -2,10 +2,12 @@ package com.pavelf.loanexchange.web.rest.specifications;
 
 import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.domain.enumeration.DealStatus;
+import com.pavelf.loanexchange.domain.enumeration.PaymentInterval;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +17,12 @@ public class DealSpecification implements Specification<Deal> {
     private Long forEmitter;
     private Long forRecipient;
     private DealStatus withStatus;
-    private Integer forMinAmountOfDays;
+    private Long endDateIntervalStart;
+    private Long endDateIntervalEnd;
     private Integer withStartBalance;
     private Integer successRate;
     private Integer dealId;
-    private ChronoUnit paymentEvery;
+    private PaymentInterval paymentEvery;
 
     @Override
     public Predicate toPredicate(Root<Deal> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -40,8 +43,14 @@ public class DealSpecification implements Specification<Deal> {
             predicateList.add(cb.equal(root.get("status"), withStatus));
         }
 
-        if (forMinAmountOfDays != null) {
-            predicateList.add(cb.greaterThanOrEqualTo(root.get("termDays"), forMinAmountOfDays));
+        if (endDateIntervalEnd != null) {
+            Instant endDate = Instant.ofEpochMilli(endDateIntervalEnd);
+            predicateList.add(cb.lessThanOrEqualTo(root.get("endDate"), endDate));
+        }
+
+        if (endDateIntervalStart != null) {
+            Instant endDate = Instant.ofEpochMilli(endDateIntervalStart);
+            predicateList.add(cb.greaterThanOrEqualTo(root.get("endDate"), endDate));
         }
 
         if (withStartBalance != null) {
@@ -95,14 +104,6 @@ public class DealSpecification implements Specification<Deal> {
         this.withStatus = withStatus;
     }
 
-    public Integer getForMinAmountOfDays() {
-        return forMinAmountOfDays;
-    }
-
-    public void setForMinAmountOfDays(Integer forMinAmountOfDays) {
-        this.forMinAmountOfDays = forMinAmountOfDays;
-    }
-
     public Integer getWithStartBalance() {
         return withStartBalance;
     }
@@ -119,11 +120,27 @@ public class DealSpecification implements Specification<Deal> {
         this.dealId = dealId;
     }
 
-    public ChronoUnit getPaymentEvery() {
+    public Long getEndDateIntervalStart() {
+        return endDateIntervalStart;
+    }
+
+    public void setEndDateIntervalStart(Long endDateIntervalStart) {
+        this.endDateIntervalStart = endDateIntervalStart;
+    }
+
+    public Long getEndDateIntervalEnd() {
+        return endDateIntervalEnd;
+    }
+
+    public void setEndDateIntervalEnd(Long endDateIntervalEnd) {
+        this.endDateIntervalEnd = endDateIntervalEnd;
+    }
+
+    public PaymentInterval getPaymentEvery() {
         return paymentEvery;
     }
 
-    public void setPaymentEvery(ChronoUnit paymentEvery) {
+    public void setPaymentEvery(PaymentInterval paymentEvery) {
         this.paymentEvery = paymentEvery;
     }
 }

@@ -51,7 +51,7 @@ public class BalanceLogSpecification implements Specification<BalanceLog> {
             predicateList.add(cb.lessThanOrEqualTo(root.get("date"), end));
         }
 
-        return cb.and((Predicate[]) predicateList.toArray());
+        return cb.and(predicateList.toArray(new Predicate[predicateList.size()]));
     }
 
     public Long getForUser() {

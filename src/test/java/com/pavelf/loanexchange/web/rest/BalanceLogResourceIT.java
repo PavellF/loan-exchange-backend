@@ -3,7 +3,9 @@ package com.pavelf.loanexchange.web.rest;
 import com.pavelf.loanexchange.LoanExchangeBackendApp;
 import com.pavelf.loanexchange.domain.BalanceLog;
 import com.pavelf.loanexchange.repository.BalanceLogRepository;
+import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.web.rest.errors.ExceptionTranslator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -29,6 +31,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 /**
  * Integration tests for the {@Link BalanceLogResource} REST controller.
  */
@@ -44,11 +47,14 @@ public class BalanceLogResourceIT {
     private static final BigDecimal DEFAULT_AMOUNT_CHANGED = new BigDecimal(1);
     private static final BigDecimal UPDATED_AMOUNT_CHANGED = new BigDecimal(2);
 
-    private static final String DEFAULT_TYPE = "AAAAAAAAAA";
-    private static final String UPDATED_TYPE = "BBBBBBBBBB";
+    private static final BalanceLogEvent DEFAULT_TYPE = BalanceLogEvent.NEW_DEAL_OPEN;
+    private static final BalanceLogEvent UPDATED_TYPE = BalanceLogEvent.LOAN_TAKEN;
 
     @Autowired
     private BalanceLogRepository balanceLogRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -72,7 +78,7 @@ public class BalanceLogResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final BalanceLogResource balanceLogResource = new BalanceLogResource(balanceLogRepository);
+        final BalanceLogResource balanceLogResource = new BalanceLogResource(userService, balanceLogRepository);
         this.restBalanceLogMockMvc = MockMvcBuilders.standaloneSetup(balanceLogResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

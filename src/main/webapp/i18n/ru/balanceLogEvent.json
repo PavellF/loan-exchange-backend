@@ -1,0 +1,12 @@
+{
+  "loanExchangeBackendApp": {
+    "BalanceLogEvent": {
+      "null": "",
+      "NEW_DEAL_OPEN": "NEW_DEAL_OPEN",
+      "LOAN_TAKEN": "LOAN_TAKEN",
+      "PERCENT_CHARGE": "PERCENT_CHARGE",
+      "DEAL_PAYMENT": "DEAL_PAYMENT",
+      "DEAL_CLOSED": "DEAL_CLOSED"
+    }
+  }
+}

@@ -2,15 +2,16 @@ import React from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Table } from 'reactstrap';
+import { Button, Col, Row, Table } from 'reactstrap';
 // tslint:disable-next-line:no-unused-variable
-import { getSortState, IPaginationBaseState, TextFormat, Translate } from 'react-jhipster';
+import { Translate, ICrudGetAllAction, TextFormat, getSortState, IPaginationBaseState } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
 import { getEntities, reset } from './notification.reducer';
+import { INotification } from 'app/shared/model/notification.model';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 
 export interface INotificationProps extends StateProps, DispatchProps, RouteComponentProps<{ url: string }> {}
@@ -89,18 +90,18 @@ export class Notification extends React.Component<INotificationProps, INotificat
                   <th className="hand" onClick={this.sort('id')}>
                     <Translate contentKey="global.field.id">ID</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
-                  <th className="hand" onClick={this.sort('haveRead')}>
-                    <Translate contentKey="loanExchangeBackendApp.notification.haveRead">Have Read</Translate>{' '}
-                    <FontAwesomeIcon icon="sort" />
-                  </th>
                   <th className="hand" onClick={this.sort('date')}>
                     <Translate contentKey="loanExchangeBackendApp.notification.date">Date</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
-                  <th className="hand" onClick={this.sort('message')}>
-                    <Translate contentKey="loanExchangeBackendApp.notification.message">Message</Translate> <FontAwesomeIcon icon="sort" />
+                  <th className="hand" onClick={this.sort('type')}>
+                    <Translate contentKey="loanExchangeBackendApp.notification.type">Type</Translate> <FontAwesomeIcon icon="sort" />
                   </th>
                   <th>
                     <Translate contentKey="loanExchangeBackendApp.notification.recipient">Recipient</Translate>{' '}
+                    <FontAwesomeIcon icon="sort" />
+                  </th>
+                  <th>
+                    <Translate contentKey="loanExchangeBackendApp.notification.associatedDeal">Associated Deal</Translate>{' '}
                     <FontAwesomeIcon icon="sort" />
                   </th>
                   <th />
@@ -114,12 +115,20 @@ export class Notification extends React.Component<INotificationProps, INotificat
                         {notification.id}
                       </Button>
                     </td>
-                    <td>{notification.haveRead ? 'true' : 'false'}</td>
                     <td>
                       <TextFormat type="date" value={notification.date} format={APP_DATE_FORMAT} />
                     </td>
-                    <td>{notification.message}</td>
+                    <td>
+                      <Translate contentKey={`loanExchangeBackendApp.BalanceLogEvent.${notification.type}`} />
+                    </td>
                     <td>{notification.recipient ? notification.recipient.id : ''}</td>
+                    <td>
+                      {notification.associatedDeal ? (
+                        <Link to={`deal/${notification.associatedDeal.id}`}>{notification.associatedDeal.id}</Link>
+                      ) : (
+                        ''
+                      )}
+                    </td>
                     <td className="text-right">
                       <div className="btn-group flex-btn-group-container">
                         <Button tag={Link} to={`${match.url}/${notification.id}`} color="info" size="sm">

@@ -103,7 +103,7 @@ public class BalanceLogResource {
      */
     @GetMapping("/balance-logs")
     public ResponseEntity<List<BalanceLog>> getAllBalanceLogs(Pageable pageable,
-                                                              @RequestParam BalanceLogSpecification params,
+                                                              BalanceLogSpecification params,
                                                               @RequestParam MultiValueMap<String, String> queryParams,
                                                               UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of BalanceLogs");

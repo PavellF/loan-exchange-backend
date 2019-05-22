@@ -125,7 +125,7 @@ public class DealResource {
      */
     @GetMapping("/deals")
     public ResponseEntity<List<Deal>> getAllDeals(Pageable pageable,
-                                                  @RequestParam DealSpecification params,
+                                                  DealSpecification params,
                                                   @RequestParam MultiValueMap<String, String> queryParams,
                                                   UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of Deals");

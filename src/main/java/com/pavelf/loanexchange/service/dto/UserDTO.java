@@ -1,14 +1,14 @@
 package com.pavelf.loanexchange.service.dto;
 
 import com.pavelf.loanexchange.config.Constants;
+
 import com.pavelf.loanexchange.domain.Authority;
 import com.pavelf.loanexchange.domain.User;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-import java.math.BigDecimal;
+
+import javax.validation.constraints.*;
 import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,8 +50,6 @@ public class UserDTO {
     private String lastModifiedBy;
 
     private Instant lastModifiedDate;
-
-    private BigDecimal balance;
 
     private Set<String> authorities;
 
@@ -171,14 +169,6 @@ public class UserDTO {
 
     public void setLastModifiedDate(Instant lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
     }
 
     public Set<String> getAuthorities() {

@@ -13,12 +13,17 @@ import password, { PasswordState } from 'app/modules/account/password/password.r
 import settings, { SettingsState } from 'app/modules/account/settings/settings.reducer';
 import passwordReset, { PasswordResetState } from 'app/modules/account/password-reset/password-reset.reducer';
 // prettier-ignore
-import deal, { DealState } from 'app/entities/deal/deal.reducer';
+import deal, {
+  DealState
+} from 'app/entities/deal/deal.reducer';
 // prettier-ignore
-import balanceLog, { BalanceLogState } from 'app/entities/balance-log/balance-log.reducer';
+import balanceLog, {
+  BalanceLogState
+} from 'app/entities/balance-log/balance-log.reducer';
 // prettier-ignore
-import notification, { NotificationState } from 'app/entities/notification/notification.reducer';
-
+import notification, {
+  NotificationState
+} from 'app/entities/notification/notification.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 export interface IRootState {

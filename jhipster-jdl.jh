@@ -1,43 +1,44 @@
-enum Period {
-    DAY, MONTH, YEAR, ALL_TIME
+enum PaymentInterval {
+    DAY, MONTH, ONE_TIME
 }
 
 enum DealStatus {
 	PENDING, ACTIVE, CLOSED, SUCCESS
 }
 
+enum BalanceLogEvent {
+    NEW_DEAL_OPEN, LOAN_TAKEN, PERCENT_CHARGE, DEAL_PAYMENT, DEAL_CLOSED
+}
+
 entity Deal {
   dateOpen Instant required
   dateBecomeActive Instant
+  endDate Instant required
   startBalance BigDecimal required min(0)
   percent BigDecimal required min(0)
-  fine BigDecimal min(0)
   successRate Integer required
   term Integer required min(0)
-  paymentEvery Period required
+  paymentEvery PaymentInterval required
   status DealStatus required
-  autoPaymentEnabled Boolean required
-  capitalization Boolean required
-  earlyPayment Boolean required
 }
 
 entity BalanceLog {
 	date Instant required
     oldValue BigDecimal required
     amountChanged BigDecimal required
-    type String required
+    type BalanceLogEvent required
 }
 
 entity Notification {
-	haveRead Boolean required
-    date Instant required
-    message String required
+	date Instant required
+    type BalanceLogEvent required
 }
 
 relationship ManyToOne {
 	Deal{emitter(id)} to User,
     Deal{recipient(id)} to User,
 	Notification{recipient(id)} to User,
+	Notification{associatedDeal(id)} to Deal,
     BalanceLog{account(id)} to User,
     BalanceLog{deal(id)} to Deal,
 }

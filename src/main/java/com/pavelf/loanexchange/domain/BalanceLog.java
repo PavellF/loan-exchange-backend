@@ -2,15 +2,19 @@ package com.pavelf.loanexchange.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
+
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 
 /**
  * A BalanceLog.

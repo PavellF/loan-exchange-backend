@@ -6,9 +6,17 @@ import thunk from 'redux-thunk';
 import sinon from 'sinon';
 import { parseHeaderForLinks } from 'react-jhipster';
 
-import reducer, { ACTION_TYPES, createEntity, deleteEntity, getEntities, getEntity, reset, updateEntity } from 'app/entities/balance-log/balance-log.reducer';
-import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
-import { defaultValue, IBalanceLog } from 'app/shared/model/balance-log.model';
+import reducer, {
+  ACTION_TYPES,
+  createEntity,
+  deleteEntity,
+  getEntities,
+  getEntity,
+  updateEntity,
+  reset
+} from 'app/entities/balance-log/balance-log.reducer';
+import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
+import { IBalanceLog, defaultValue } from 'app/shared/model/balance-log.model';
 
 // tslint:disable no-invalid-template-strings
 describe('Entities reducer tests', () => {

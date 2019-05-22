@@ -1,10 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
-import { Translate } from 'react-jhipster';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
+import { Translate, ICrudGetAction, ICrudDeleteAction } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { deleteUser, getUser } from './user-management.reducer';
+
+import { IUser } from 'app/shared/model/user.model';
+import { getUser, deleteUser } from './user-management.reducer';
 import { IRootState } from 'app/shared/reducers';
 
 export interface IUserManagementDeleteDialogProps extends StateProps, DispatchProps, RouteComponentProps<{ login: string }> {}

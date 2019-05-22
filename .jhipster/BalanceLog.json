@@ -24,7 +24,8 @@
         },
         {
             "fieldName": "type",
-            "fieldType": "String",
+            "fieldType": "BalanceLogEvent",
+            "fieldValues": "NEW_DEAL_OPEN,LOAN_TAKEN,PERCENT_CHARGE,DEAL_PAYMENT,DEAL_CLOSED",
             "fieldValidateRules": [
                 "required"
             ]
@@ -46,7 +47,7 @@
             "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20190519125841",
+    "changelogDate": "20190521215846",
     "entityTableName": "balance_log",
     "dto": "no",
     "pagination": "infinite-scroll",

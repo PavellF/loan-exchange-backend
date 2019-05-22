@@ -1,5 +1,6 @@
 import React from 'react';
 import { Switch } from 'react-router-dom';
+
 // tslint:disable-next-line:no-unused-variable
 import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
 

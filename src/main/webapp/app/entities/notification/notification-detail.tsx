@@ -1,15 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Row } from 'reactstrap';
+import { Button, Row, Col } from 'reactstrap';
 // tslint:disable-next-line:no-unused-variable
-import { TextFormat, Translate } from 'react-jhipster';
+import { Translate, ICrudGetAction, TextFormat } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootState } from 'app/shared/reducers';
 import { getEntity } from './notification.reducer';
+import { INotification } from 'app/shared/model/notification.model';
 // tslint:disable-next-line:no-unused-variable
-import { APP_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 
 export interface INotificationDetailProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -29,12 +30,6 @@ export class NotificationDetail extends React.Component<INotificationDetailProps
           </h2>
           <dl className="jh-entity-details">
             <dt>
-              <span id="haveRead">
-                <Translate contentKey="loanExchangeBackendApp.notification.haveRead">Have Read</Translate>
-              </span>
-            </dt>
-            <dd>{notificationEntity.haveRead ? 'true' : 'false'}</dd>
-            <dt>
               <span id="date">
                 <Translate contentKey="loanExchangeBackendApp.notification.date">Date</Translate>
               </span>
@@ -43,15 +38,19 @@ export class NotificationDetail extends React.Component<INotificationDetailProps
               <TextFormat value={notificationEntity.date} type="date" format={APP_DATE_FORMAT} />
             </dd>
             <dt>
-              <span id="message">
-                <Translate contentKey="loanExchangeBackendApp.notification.message">Message</Translate>
+              <span id="type">
+                <Translate contentKey="loanExchangeBackendApp.notification.type">Type</Translate>
               </span>
             </dt>
-            <dd>{notificationEntity.message}</dd>
+            <dd>{notificationEntity.type}</dd>
             <dt>
               <Translate contentKey="loanExchangeBackendApp.notification.recipient">Recipient</Translate>
             </dt>
             <dd>{notificationEntity.recipient ? notificationEntity.recipient.id : ''}</dd>
+            <dt>
+              <Translate contentKey="loanExchangeBackendApp.notification.associatedDeal">Associated Deal</Translate>
+            </dt>
+            <dd>{notificationEntity.associatedDeal ? notificationEntity.associatedDeal.id : ''}</dd>
           </dl>
           <Button tag={Link} to="/entity/notification" replace color="info">
             <FontAwesomeIcon icon="arrow-left" />{' '}

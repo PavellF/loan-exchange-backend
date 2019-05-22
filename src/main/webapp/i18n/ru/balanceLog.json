@@ -1,0 +1,26 @@
+{
+  "loanExchangeBackendApp": {
+    "balanceLog": {
+      "home": {
+        "title": "Balance Logs",
+        "createLabel": "Создать новый Balance Log",
+        "createOrEditLabel": "Создать или отредактировать Balance Log"
+      },
+      "created": "Новый Balance Log создан с идентификатором {{ param }}",
+      "updated": "Balance Log обновлен с идентификатором {{ param }}",
+      "deleted": "Balance Log удален с идентификатором {{ param }}",
+      "delete": {
+        "question": "Вы уверены что хотите удалить Balance Log {{ id }}?"
+      },
+      "detail": {
+        "title": "Balance Log"
+      },
+      "date": "Date",
+      "oldValue": "Old Value",
+      "amountChanged": "Amount Changed",
+      "type": "Type",
+      "account": "Account",
+      "deal": "Deal"
+    }
+  }
+}

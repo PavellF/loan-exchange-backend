@@ -1,17 +1,22 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Label, Row } from 'reactstrap';
-import { AvField, AvForm, AvGroup, AvInput } from 'availity-reactstrap-validation';
+import { Button, Row, Col, Label } from 'reactstrap';
+import { AvFeedback, AvForm, AvGroup, AvInput, AvField } from 'availity-reactstrap-validation';
 // tslint:disable-next-line:no-unused-variable
-import { Translate, translate } from 'react-jhipster';
+import { Translate, translate, ICrudGetAction, ICrudGetAllAction, ICrudPutAction } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
+
+import { IUser } from 'app/shared/model/user.model';
 import { getUsers } from 'app/modules/administration/user-management/user-management.reducer';
+import { IDeal } from 'app/shared/model/deal.model';
 import { getEntities as getDeals } from 'app/entities/deal/deal.reducer';
-import { createEntity, getEntity, reset, updateEntity } from './balance-log.reducer';
+import { getEntity, updateEntity, createEntity, reset } from './balance-log.reducer';
+import { IBalanceLog } from 'app/shared/model/balance-log.model';
 // tslint:disable-next-line:no-unused-variable
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
+import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IBalanceLogUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
@@ -143,14 +148,29 @@ export class BalanceLogUpdate extends React.Component<IBalanceLogUpdateProps, IB
                   <Label id="typeLabel" for="balance-log-type">
                     <Translate contentKey="loanExchangeBackendApp.balanceLog.type">Type</Translate>
                   </Label>
-                  <AvField
+                  <AvInput
                     id="balance-log-type"
-                    type="text"
+                    type="select"
+                    className="form-control"
                     name="type"
-                    validate={{
-                      required: { value: true, errorMessage: translate('entity.validation.required') }
-                    }}
-                  />
+                    value={(!isNew && balanceLogEntity.type) || 'NEW_DEAL_OPEN'}
+                  >
+                    <option value="NEW_DEAL_OPEN">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.NEW_DEAL_OPEN" />
+                    </option>
+                    <option value="LOAN_TAKEN">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.LOAN_TAKEN" />
+                    </option>
+                    <option value="PERCENT_CHARGE">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.PERCENT_CHARGE" />
+                    </option>
+                    <option value="DEAL_PAYMENT">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.DEAL_PAYMENT" />
+                    </option>
+                    <option value="DEAL_CLOSED">
+                      <Translate contentKey="loanExchangeBackendApp.BalanceLogEvent.DEAL_CLOSED" />
+                    </option>
+                  </AvInput>
                 </AvGroup>
                 <AvGroup>
                   <Label for="balance-log-account">

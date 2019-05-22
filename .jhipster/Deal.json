@@ -13,6 +13,13 @@
             "fieldType": "Instant"
         },
         {
+            "fieldName": "endDate",
+            "fieldType": "Instant",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
             "fieldName": "startBalance",
             "fieldType": "BigDecimal",
             "fieldValidateRules": [
@@ -26,14 +33,6 @@
             "fieldType": "BigDecimal",
             "fieldValidateRules": [
                 "required",
-                "min"
-            ],
-            "fieldValidateRulesMin": 0
-        },
-        {
-            "fieldName": "fine",
-            "fieldType": "BigDecimal",
-            "fieldValidateRules": [
                 "min"
             ],
             "fieldValidateRulesMin": 0
@@ -56,8 +55,8 @@
         },
         {
             "fieldName": "paymentEvery",
-            "fieldType": "Period",
-            "fieldValues": "DAY,MONTH,YEAR,ALL_TIME",
+            "fieldType": "PaymentInterval",
+            "fieldValues": "DAY,MONTH,ONE_TIME",
             "fieldValidateRules": [
                 "required"
             ]
@@ -66,27 +65,6 @@
             "fieldName": "status",
             "fieldType": "DealStatus",
             "fieldValues": "PENDING,ACTIVE,CLOSED,SUCCESS",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "autoPaymentEnabled",
-            "fieldType": "Boolean",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "capitalization",
-            "fieldType": "Boolean",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "earlyPayment",
-            "fieldType": "Boolean",
             "fieldValidateRules": [
                 "required"
             ]
@@ -108,7 +86,7 @@
             "otherEntityField": "id"
         }
     ],
-    "changelogDate": "20190519125840",
+    "changelogDate": "20190521215845",
     "entityTableName": "deal",
     "dto": "no",
     "pagination": "infinite-scroll",
