@@ -5,5 +5,5 @@
 spring:
   cloud:
     config:
-      fail-fast: true
+      fail-fast: false
       uri: ${JHIPSTER_REGISTRY_URL}/config
