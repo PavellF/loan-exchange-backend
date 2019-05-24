@@ -134,5 +134,5 @@
     "idexists": "Новый {{entityName}} не может иметь данный ID",
     "idnull": "Неверный ID"
   },
-  "footer": "Это ваш футтер"
+  "footer": "GitHub"
 }
