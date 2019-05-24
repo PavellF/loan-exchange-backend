@@ -140,15 +140,15 @@ jhipster:
     clientApp:
         name: 'loanExchangeBackendApp'
     # By default CORS is disabled. Uncomment to enable.
-    # cors:
-    allowed-origins: "*"
-    allowed-methods: "*"
-    allowed-headers: "*"
-    exposed-headers: "Authorization,Link,X-Total-Count"
-    allow-credentials: true
-    max-age: 1800
+    cors:
+        allowed-origins: "*"
+        allowed-methods: "*"
+        allowed-headers: "*"
+        exposed-headers: "Authorization,Link,X-Total-Count"
+        allow-credentials: true
+        max-age: 1800
     mail:
-        from: loanExchangeBackend@localhost
+    from: loanExchangeBackend@localhost
     swagger:
         default-include-pattern: /api/.*
         title: loanExchangeBackend API

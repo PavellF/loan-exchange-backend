@@ -75,7 +75,7 @@ public class AccountResource {
         }
 
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword(), role);
-        // mailService.sendActivationEmail(user);
+        // mailService.sendActivationEmail(user); heroku logs --tail
     }
 
     /**
