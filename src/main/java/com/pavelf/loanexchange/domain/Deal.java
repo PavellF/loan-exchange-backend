@@ -34,14 +34,12 @@ public class Deal implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
-    @NotNull
     @Column(name = "date_open", nullable = false)
     private Instant dateOpen;
 
     @Column(name = "date_become_active")
     private Instant dateBecomeActive;
 
-    @NotNull
     @Column(name = "end_date", nullable = false)
     private Instant endDate;
 
@@ -55,7 +53,6 @@ public class Deal implements Serializable {
     @Column(name = "jhi_percent", precision = 21, scale = 2, nullable = false)
     private BigDecimal percent;
 
-    @NotNull
     @Column(name = "success_rate", nullable = false)
     private Integer successRate;
 
@@ -69,7 +66,6 @@ public class Deal implements Serializable {
     @Column(name = "payment_every", nullable = false)
     private PaymentInterval paymentEvery;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private DealStatus status;
@@ -234,6 +230,7 @@ public class Deal implements Serializable {
         this.recipient = user;
     }
 
+    @JsonIgnore
     public BigDecimal getAveragePayment() {
         if (paymentEvery == PaymentInterval.ONE_TIME) {
             return getStartBalance().multiply(getPercent().add(BigDecimal.ONE));
@@ -244,6 +241,7 @@ public class Deal implements Serializable {
         return overallCharged.divide(term, RoundingMode.HALF_EVEN);
     }
 
+    @JsonIgnore
     public BigDecimal getPercentCharge() {
         return getStartBalance().multiply(getPercent());
     }
