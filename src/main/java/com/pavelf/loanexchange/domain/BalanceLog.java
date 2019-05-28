@@ -143,6 +143,7 @@ public class BalanceLog implements Serializable {
         this.deal = deal;
     }
 
+    @JsonIgnore
     public BigDecimal getCurrentAccountBalance() {
         return this.oldValue.add(this.amountChanged);
     }
