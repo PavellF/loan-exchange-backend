@@ -99,7 +99,6 @@ public class AccountResource {
         }
     }
 
-
     @GetMapping("/account/stats")
     public ResponseEntity<AccountStats> getAccountStats(@RequestParam(required = false) Long userId) {
         log.debug("REST request to get account stats for userid " + userId);
