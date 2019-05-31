@@ -31,15 +31,13 @@ public class DealService {
     private final UserService userService;
     private final BalanceLogRepository balanceLogRepository;
     private final DealRepository dealRepository;
-    private final BalanceLogService balanceLogService;
     private final NotificationRepository notificationRepository;
 
     public DealService(UserService userService, BalanceLogRepository balanceLogRepository, DealRepository dealRepository,
-                       BalanceLogService balanceLogService, NotificationRepository notificationRepository) {
+                       NotificationRepository notificationRepository) {
         this.userService = userService;
         this.balanceLogRepository = balanceLogRepository;
         this.dealRepository = dealRepository;
-        this.balanceLogService = balanceLogService;
         this.notificationRepository = notificationRepository;
     }
 
@@ -61,7 +59,7 @@ public class DealService {
         final Instant now = Instant.now();
 
         deal.successRate(computeSuccessRate(deal)).status(DealStatus.PENDING).emitter(loggedInUser)
-            .recipient(null).dateOpen(now).dateBecomeActive(null).endDate(computeEndDate(deal, now));
+            .recipient(null).dateOpen(now).dateBecomeActive(null).endDate(null).term(computeTerm(deal));
 
         Deal saved = dealRepository.save(deal);
 
@@ -78,12 +76,11 @@ public class DealService {
         return saved;
     }
 
-    private Instant computeEndDate(Deal deal, Instant now) {
-        if (deal.getPaymentEvery() == PaymentInterval.ONE_TIME || deal.getPaymentEvery() == PaymentInterval.DAY) {
-            return now.plus(deal.getTerm(), ChronoUnit.DAYS);
-        } else {
-            return now.plus(deal.getTerm() * 30, ChronoUnit.DAYS);
+    private Integer computeTerm(Deal deal) {
+        if (deal.getPaymentEvery() == PaymentInterval.MONTH) {
+            return deal.getTerm() * 30;
         }
+        return deal.getTerm();
     }
 
     /**
@@ -109,6 +106,7 @@ public class DealService {
 
         deal.setStatus(DealStatus.ACTIVE);
         deal.setDateBecomeActive(now);
+        deal.setEndDate(now.plus(deal.getTerm(), ChronoUnit.DAYS));
 
         BigDecimal balance = balanceLogRepository.findLastLogForDeal(deal)
             .map(BalanceLog::getCurrentAccountBalance).orElse(BigDecimal.ZERO);

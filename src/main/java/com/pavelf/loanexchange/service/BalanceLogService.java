@@ -38,20 +38,6 @@ public class BalanceLogService {
         this.notificationRepository = notificationRepository;
     }
 
-    /**
-     * Creates log that multiply deal balance based on last balance log.
-     * @param percent multiply to, only positive
-     * @param last last balance log used as a base
-     * */
-    public BalanceLog earnPercent(BigDecimal percent, BalanceLog last) {
-        final Instant now = Instant.now();
-        final BigDecimal accountBalance = last.getCurrentAccountBalance();
-        final BigDecimal newBalance = accountBalance.multiply(percent.add(BigDecimal.ONE));
-        final BigDecimal amountChanged = newBalance.subtract(accountBalance);
-        return new BalanceLog().date(now).amountChanged(amountChanged).type(BalanceLogEvent.PERCENT_CHARGE)
-            .oldValue(accountBalance);
-    }
-
     private void processPayments(List<Deal> deals) {
         deals.forEach(deal -> {
             final Instant now = Instant.now();

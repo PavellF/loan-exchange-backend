@@ -22,7 +22,8 @@ public class DealSpecification implements Specification<Deal> {
     private Integer successRate;
     private Long dealId;
     private PaymentInterval paymentEvery;
-    private transient boolean getOnlyAvailableToDebtor;
+    private Integer minTerm;
+    private transient boolean getOnlyAvailableToDebtor = false;
 
     @Override
     public Predicate toPredicate(Root<Deal> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -49,6 +50,10 @@ public class DealSpecification implements Specification<Deal> {
 
         if (withStatus != null) {
             predicateList.add(cb.equal(root.get("status"), withStatus));
+        }
+
+        if (minTerm != null) {
+            predicateList.add(cb.greaterThanOrEqualTo(root.get("term"), minTerm));
         }
 
         if (endDateIntervalEnd != null) {
@@ -87,6 +92,14 @@ public class DealSpecification implements Specification<Deal> {
     public void setGetOnlyAvailableToDebtor(Long debtorId) {
         this.getOnlyAvailableToDebtor = true;
         this.setForRecipient(debtorId);
+    }
+
+    public Integer getMinTerm() {
+        return minTerm;
+    }
+
+    public void setMinTerm(Integer minTerm) {
+        this.minTerm = minTerm;
     }
 
     public Integer getSuccessRate() {
