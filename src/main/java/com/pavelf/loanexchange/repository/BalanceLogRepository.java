@@ -36,6 +36,6 @@ public interface BalanceLogRepository extends JpaRepository<BalanceLog, Long>, J
     @Query("SELECT SUM(l.amountChanged) FROM BalanceLog AS l WHERE l.account.id = ?1 AND l.type = ?2")
     Long getAmountChangedSumForUser(Long userId, BalanceLogEvent forEvent);
 
-    @Query("SELECT SUM(l.amountChanged) FROM BalanceLog AS l WHERE l.amountChanged > 0")
+    @Query("SELECT SUM(l.amountChanged) FROM BalanceLog AS l WHERE l.amountChanged > 0 AND l.account.id = ?1")
     Long getSumWhereChangeIsPositive(Long userId);
 }
