@@ -7,6 +7,7 @@ import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.repository.AuthorityRepository;
 import com.pavelf.loanexchange.repository.UserRepository;
 import com.pavelf.loanexchange.security.AuthoritiesConstants;
+import com.pavelf.loanexchange.service.BalanceLogService;
 import com.pavelf.loanexchange.service.MailService;
 import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.service.dto.PasswordChangeDTO;
@@ -53,6 +54,9 @@ public class AccountResourceIT {
     private AuthorityRepository authorityRepository;
 
     @Autowired
+    private BalanceLogService balanceLogService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -79,10 +83,10 @@ public class AccountResourceIT {
         MockitoAnnotations.initMocks(this);
         doNothing().when(mockMailService).sendActivationEmail(any());
         AccountResource accountResource =
-            new AccountResource(userRepository, userService, mockMailService);
+            new AccountResource(userRepository, userService, mockMailService, balanceLogService);
 
         AccountResource accountUserMockResource =
-            new AccountResource(userRepository, mockUserService, mockMailService);
+            new AccountResource(userRepository, mockUserService, mockMailService, balanceLogService);
         this.restMvc = MockMvcBuilders.standaloneSetup(accountResource)
             .setMessageConverters(httpMessageConverters)
             .setControllerAdvice(exceptionTranslator)
