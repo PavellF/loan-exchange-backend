@@ -3,6 +3,7 @@ package com.pavelf.loanexchange.repository;
 import com.pavelf.loanexchange.domain.BalanceLog;
 import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.domain.User;
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +32,10 @@ public interface BalanceLogRepository extends JpaRepository<BalanceLog, Long>, J
 
     @Query("SELECT b FROM BalanceLog AS b WHERE b.deal = ?1")
     List<BalanceLog> findAllForDeal(Deal deal);
+
+    @Query("SELECT SUM(l.amountChanged) FROM BalanceLog AS l WHERE l.account.id = ?1 AND l.type = ?2")
+    Long getAmountChangedSumForUser(Long userId, BalanceLogEvent forEvent);
+
+    @Query("SELECT SUM(l.amountChanged) FROM BalanceLog AS l WHERE l.amountChanged > 0")
+    Long getSumWhereChangeIsPositive(Long userId);
 }

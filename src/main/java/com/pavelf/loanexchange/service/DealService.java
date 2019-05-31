@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -80,15 +79,11 @@ public class DealService {
     }
 
     private Instant computeEndDate(Deal deal, Instant now) {
-        Instant end;
-
         if (deal.getPaymentEvery() == PaymentInterval.ONE_TIME || deal.getPaymentEvery() == PaymentInterval.DAY) {
-            end = now.plus(deal.getTerm(), ChronoUnit.DAYS);
+            return now.plus(deal.getTerm(), ChronoUnit.DAYS);
         } else {
-            end = now.plus(deal.getTerm(), ChronoUnit.MONTHS);
+            return now.plus(deal.getTerm() * 30, ChronoUnit.DAYS);
         }
-
-        return end;
     }
 
     /**
@@ -139,7 +134,7 @@ public class DealService {
     public Deal updateDeal(Deal toUpdate) {
         Deal deal = dealRepository.findById(toUpdate.getId()).get();
 
-        if (toUpdate.getStatus() == DealStatus.CLOSED) {
+        if (toUpdate.getStatus() == DealStatus.CLOSED && deal.getStatus() == DealStatus.PENDING) {
             deal.setStatus(DealStatus.CLOSED);
         }
 

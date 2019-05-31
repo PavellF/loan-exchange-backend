@@ -1,5 +1,6 @@
 package com.pavelf.loanexchange.service;
 
+import com.pavelf.loanexchange.domain.AccountStats;
 import com.pavelf.loanexchange.domain.BalanceLog;
 import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.domain.Notification;
@@ -19,12 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class BalanceLogService {
@@ -98,7 +95,7 @@ public class BalanceLogService {
     @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Moscow")
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void chargePercentForEveryDayDeals() {
-        log.debug("chargePercentForEveryDayDeals() started.");
+        log.info("chargePercentForEveryDayDeals() started.");
 
         DealSpecification specification = new DealSpecification();
         specification.setWithStatus(DealStatus.ACTIVE);
@@ -107,13 +104,13 @@ public class BalanceLogService {
         List<Deal> activeDeals = dealRepository.findAll(specification);
         processPayments(activeDeals);
 
-        log.debug("chargePercentForEveryDayDeals() ended.");
+        log.info("chargePercentForEveryDayDeals() ended.");
     }
 
     @Scheduled(cron = "0 0 0 1 1/1 *", zone = "Europe/Moscow")
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void chargePercentForEveryMonthDeals() {
-        log.debug("chargePercentForEveryMonthDeals() started.");
+        log.info("chargePercentForEveryMonthDeals() started.");
 
         DealSpecification specification = new DealSpecification();
         specification.setWithStatus(DealStatus.ACTIVE);
@@ -122,13 +119,13 @@ public class BalanceLogService {
         List<Deal> activeDeals = dealRepository.findAll(specification);
         processPayments(activeDeals);
 
-        log.debug("chargePercentForEveryMonthDeals() ended.");
+        log.info("chargePercentForEveryMonthDeals() ended.");
     }
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Moscow")
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void chargePercentForSinglePaymentDeals() {
-        log.debug("chargePercentForSinglePaymentDeals() started.");
+        log.info("chargePercentForSinglePaymentDeals() started.");
 
         DealSpecification specification = new DealSpecification();
         specification.setWithStatus(DealStatus.ACTIVE);
@@ -138,6 +135,13 @@ public class BalanceLogService {
         List<Deal> activeDeals = dealRepository.findAll(specification);
         processPayments(activeDeals);
 
-        log.debug("chargePercentForSinglePaymentDeals() ended.");
+        log.info("chargePercentForSinglePaymentDeals() ended.");
+    }
+
+    public AccountStats getAccountStats(Long forUserId) {
+        AccountStats stats = new AccountStats();
+        stats.setAllTimeIncoming(balanceLogRepository.getSumWhereChangeIsPositive(forUserId));
+        stats.setAllTimePaymentForLoan(balanceLogRepository.getAmountChangedSumForUser(forUserId, BalanceLogEvent.DEAL_PAYMENT));
+        return stats;
     }
 }

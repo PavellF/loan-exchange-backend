@@ -1,10 +1,11 @@
 package com.pavelf.loanexchange.web.rest;
 
-
+import com.pavelf.loanexchange.domain.AccountStats;
 import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.repository.UserRepository;
 import com.pavelf.loanexchange.security.AuthoritiesConstants;
 import com.pavelf.loanexchange.security.SecurityUtils;
+import com.pavelf.loanexchange.service.BalanceLogService;
 import com.pavelf.loanexchange.service.MailService;
 import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.service.dto.PasswordChangeDTO;
@@ -19,11 +20,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Optional;
+
+import static com.pavelf.loanexchange.security.AuthoritiesConstants.ADMIN;
 
 /**
  * REST controller for managing the current user's account.
@@ -46,11 +50,14 @@ public class AccountResource {
 
     private final MailService mailService;
 
-    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
+    private final BalanceLogService balanceLogService;
 
+    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService,
+                           BalanceLogService balanceLogService) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
+        this.balanceLogService = balanceLogService;
     }
 
     /**
@@ -89,6 +96,19 @@ public class AccountResource {
         Optional<User> user = userService.activateRegistration(key);
         if (!user.isPresent()) {
             throw new AccountResourceException("No user was found for this activation key");
+        }
+    }
+
+
+    @GetMapping("/account/stats")
+    public ResponseEntity<AccountStats> getAccountStats(@RequestParam(required = false) Long userId) {
+        log.debug("REST request to get account stats for userid " + userId);
+
+        if (SecurityUtils.isCurrentUserInRole(ADMIN)) {
+            return ResponseEntity.ok(balanceLogService.getAccountStats(userId));
+        } else {
+            User loggedInUser = userService.getUserWithAuthorities().get();
+            return ResponseEntity.ok(balanceLogService.getAccountStats(loggedInUser.getId()));
         }
     }
 

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class DealSpecification implements Specification<Deal> {
     private Long endDateIntervalEnd;
     private Integer withStartBalance;
     private Integer successRate;
-    private Integer dealId;
+    private Long dealId;
     private PaymentInterval paymentEvery;
 
     @Override
@@ -112,11 +111,11 @@ public class DealSpecification implements Specification<Deal> {
         this.withStartBalance = withStartBalance;
     }
 
-    public Integer getDealId() {
+    public Long getDealId() {
         return dealId;
     }
 
-    public void setDealId(Integer dealId) {
+    public void setDealId(Long dealId) {
         this.dealId = dealId;
     }
 

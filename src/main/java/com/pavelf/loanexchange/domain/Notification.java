@@ -2,18 +2,14 @@ package com.pavelf.loanexchange.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
-
-import com.pavelf.loanexchange.domain.enumeration.BalanceLogEvent;
 
 /**
  * A Notification.
@@ -102,6 +98,13 @@ public class Notification implements Serializable {
     public Notification associatedDeal(Deal deal) {
         this.associatedDeal = deal;
         return this;
+    }
+
+    public Long getAssociatedDealId() {
+        if (this.associatedDeal != null) {
+            return this.associatedDeal.getId();
+        }
+        return null;
     }
 
     public void setAssociatedDeal(Deal deal) {

@@ -2,6 +2,7 @@ package com.pavelf.loanexchange.web.rest;
 
 import com.pavelf.loanexchange.domain.Deal;
 import com.pavelf.loanexchange.domain.User;
+import com.pavelf.loanexchange.domain.enumeration.DealStatus;
 import com.pavelf.loanexchange.repository.DealRepository;
 import com.pavelf.loanexchange.security.SecurityUtils;
 import com.pavelf.loanexchange.service.DealService;
@@ -132,7 +133,7 @@ public class DealResource {
 
         if (SecurityUtils.isCurrentUserInRole(DEBTOR)) {
 
-            if (params.getForRecipient() != null) {
+            if (params.getWithStatus() != DealStatus.PENDING) {
                 User loggedInUser = userService.getUserWithAuthorities().get();
                 params.setForRecipient(loggedInUser.getId());
             }
@@ -154,10 +155,24 @@ public class DealResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the deal, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/deals/{id}")
-    @PreAuthorize("hasRole(\"" + ADMIN + "\")")
     public ResponseEntity<Deal> getDeal(@PathVariable Long id) {
         log.debug("REST request to get Deal : {}", id);
-        Optional<Deal> deal = dealRepository.findById(id);
+        DealSpecification params = new DealSpecification();
+        params.setDealId(id);
+
+        if (SecurityUtils.isCurrentUserInRole(DEBTOR)) {
+
+            if (params.getWithStatus() != DealStatus.PENDING) {
+                User loggedInUser = userService.getUserWithAuthorities().get();
+                params.setForRecipient(loggedInUser.getId());
+            }
+
+        } else if (SecurityUtils.isCurrentUserInRole(CREDITOR)) {
+            User loggedInUser = userService.getUserWithAuthorities().get();
+            params.setForEmitter(loggedInUser.getId());
+        }
+
+        Optional<Deal> deal = dealRepository.findOne(params);
         return ResponseUtil.wrapOrNotFound(deal);
     }
 

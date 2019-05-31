@@ -2,22 +2,19 @@ package com.pavelf.loanexchange.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.pavelf.loanexchange.domain.enumeration.DealStatus;
+import com.pavelf.loanexchange.domain.enumeration.PaymentInterval;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
-
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.util.Objects;
-
-import com.pavelf.loanexchange.domain.enumeration.PaymentInterval;
-
-import com.pavelf.loanexchange.domain.enumeration.DealStatus;
 
 /**
  * A Deal.
@@ -32,6 +29,7 @@ public class Deal implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
+    @Access(AccessType.PROPERTY)
     private Long id;
 
     @Column(name = "date_open", nullable = false)
