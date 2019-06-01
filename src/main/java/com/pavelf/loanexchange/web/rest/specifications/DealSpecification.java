@@ -5,7 +5,10 @@ import com.pavelf.loanexchange.domain.enumeration.DealStatus;
 import com.pavelf.loanexchange.domain.enumeration.PaymentInterval;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -31,19 +34,16 @@ public class DealSpecification implements Specification<Deal> {
         List<Predicate> predicateList = new ArrayList<>();
 
         if (forEmitter != null) {
-            Join emitter = root.join("emitter");
-            predicateList.add(cb.equal(emitter.get("id"), forEmitter));
+            predicateList.add(cb.equal(root.get("emitter"), forEmitter));
         }
 
         if (forRecipient != null) {
-            Join recipient = root.join("recipient");
-            predicateList.add(cb.equal(recipient.get("id"), forRecipient));
+            predicateList.add(cb.equal(root.get("recipient"), forRecipient));
         }
 
         if (onlyAvailableToDebtor != null) {
-            Join recipient = root.join("recipient");
             predicateList.add(cb.or(
-                cb.equal(recipient.get("id"), onlyAvailableToDebtor),
+                cb.equal(root.get("recipient"), onlyAvailableToDebtor),
                 cb.equal(root.get("status"), DealStatus.PENDING)
             ));
         }

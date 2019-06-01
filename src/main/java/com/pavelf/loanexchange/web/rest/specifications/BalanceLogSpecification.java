@@ -3,7 +3,10 @@ package com.pavelf.loanexchange.web.rest.specifications;
 import com.pavelf.loanexchange.domain.BalanceLog;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -13,7 +16,6 @@ public class BalanceLogSpecification implements Specification<BalanceLog> {
 
     private Long forUser;
     private Long forDeal;
-    private Long userParticipatingInDeal;
     private Integer startDaysAgo;
     private Integer endDaysAgo;
 
@@ -23,22 +25,11 @@ public class BalanceLogSpecification implements Specification<BalanceLog> {
         List<Predicate> predicateList = new ArrayList<>();
 
         if (forUser != null) {
-            Join account = root.join("account");
-            predicateList.add(cb.equal(account.get("id"), forUser));
+            predicateList.add(cb.equal(root.get("account"), forUser));
         }
 
         if (forDeal != null) {
-            Join deal = root.join("deal");
-            predicateList.add(cb.equal(deal.get("id"), forDeal));
-        }
-
-        if (userParticipatingInDeal != null) {
-            Join emitter = root.join("deal").join("emitter");
-            Join recipient = root.join("deal").join("recipient");
-            predicateList.add(cb.or(
-                cb.equal(emitter.get("id"), userParticipatingInDeal),
-                cb.equal(recipient.get("id"), userParticipatingInDeal)
-            ));
+            predicateList.add(cb.equal(root.get("deal"), forDeal));
         }
 
         if (startDaysAgo != null) {
@@ -86,11 +77,4 @@ public class BalanceLogSpecification implements Specification<BalanceLog> {
         this.endDaysAgo = endDaysAgo;
     }
 
-    public Long getUserParticipatingInDeal() {
-        return userParticipatingInDeal;
-    }
-
-    public void setUserParticipatingInDeal(Long userParticipatingInDeal) {
-        this.userParticipatingInDeal = userParticipatingInDeal;
-    }
 }

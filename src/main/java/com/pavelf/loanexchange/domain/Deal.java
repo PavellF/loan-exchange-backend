@@ -38,7 +38,7 @@ public class Deal implements Serializable {
     @Column(name = "date_become_active")
     private Instant dateBecomeActive;
 
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date")
     private Instant endDate;
 
     @NotNull

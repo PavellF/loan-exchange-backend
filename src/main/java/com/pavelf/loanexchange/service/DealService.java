@@ -107,6 +107,7 @@ public class DealService {
         deal.setStatus(DealStatus.ACTIVE);
         deal.setDateBecomeActive(now);
         deal.setEndDate(now.plus(deal.getTerm(), ChronoUnit.DAYS));
+        deal.setRecipient(loggedInUser);
 
         BigDecimal balance = balanceLogRepository.findLastLogForDeal(deal)
             .map(BalanceLog::getCurrentAccountBalance).orElse(BigDecimal.ZERO);
@@ -128,12 +129,26 @@ public class DealService {
     /**
      * Updates deal for creditor.
      * */
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Deal updateDeal(Deal toUpdate) {
         Deal deal = dealRepository.findById(toUpdate.getId()).get();
 
         if (toUpdate.getStatus() == DealStatus.CLOSED && deal.getStatus() == DealStatus.PENDING) {
+
+            final Instant now = Instant.now();
+            User loggedInUser = userService.getUserWithAuthorities().get();
+
+            BigDecimal balance = balanceLogRepository.findLastLogForDeal(deal)
+                .map(BalanceLog::getCurrentAccountBalance).orElse(BigDecimal.ZERO);
+
+            BalanceLog plusOnCreditorAccount = new BalanceLog().date(now).amountChanged(balance)
+                .type(BalanceLogEvent.DEAL_CLOSED).account(loggedInUser).oldValue(BigDecimal.ZERO);
+
+            balanceLogRepository.findLastLogForUser(loggedInUser)
+                .ifPresent(log -> plusOnCreditorAccount.oldValue(log.getCurrentAccountBalance()));
+
             deal.setStatus(DealStatus.CLOSED);
+            balanceLogRepository.save(plusOnCreditorAccount);
         }
 
         Deal updated = dealRepository.save(deal);

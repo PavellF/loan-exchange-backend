@@ -25,4 +25,7 @@ public interface DealRepository extends JpaRepository<Deal, Long>, JpaSpecificat
     @Query("SELECT COUNT(deal) FROM Deal AS deal WHERE deal.recipient = ?1 AND deal.status = 'ACTIVE'")
     int countActiveDealsForRecipient(User recipient);
 
+    @Query("SELECT COUNT(d) FROM Deal AS d WHERE d.id = ?2 AND (d.recipient = ?1 OR d.emitter = ?1)")
+    int isDealExistWithThisUserParticipating(User user, Long dealId);
+
 }

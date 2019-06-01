@@ -3,7 +3,10 @@ package com.pavelf.loanexchange.web.rest.specifications;
 import com.pavelf.loanexchange.domain.Notification;
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +21,11 @@ public class NotificationSpecification implements Specification<Notification> {
         List<Predicate> predicateList = new ArrayList<>();
 
         if (forDeal != null) {
-            Join deal = root.join("associatedDeal");
-            predicateList.add(cb.equal(deal.get("id"), forDeal));
+            predicateList.add(cb.equal(root.get("associatedDeal"), forDeal));
         }
 
         if (forUser != null) {
-            Join account = root.join("recipient");
-            predicateList.add(cb.equal(account.get("id"), forUser));
+            predicateList.add(cb.equal(root.get("recipient"), forUser));
         }
 
         return cb.and(predicateList.toArray(new Predicate[predicateList.size()]));

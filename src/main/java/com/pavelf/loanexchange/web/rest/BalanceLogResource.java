@@ -3,6 +3,7 @@ package com.pavelf.loanexchange.web.rest;
 import com.pavelf.loanexchange.domain.BalanceLog;
 import com.pavelf.loanexchange.domain.User;
 import com.pavelf.loanexchange.repository.BalanceLogRepository;
+import com.pavelf.loanexchange.repository.DealRepository;
 import com.pavelf.loanexchange.security.SecurityUtils;
 import com.pavelf.loanexchange.service.UserService;
 import com.pavelf.loanexchange.web.rest.errors.BadRequestAlertException;
@@ -48,9 +49,13 @@ public class BalanceLogResource {
 
     private final BalanceLogRepository balanceLogRepository;
 
-    public BalanceLogResource(UserService userService, BalanceLogRepository balanceLogRepository) {
+    private final DealRepository dealRepository;
+
+    public BalanceLogResource(UserService userService, BalanceLogRepository balanceLogRepository,
+                              DealRepository dealRepository) {
         this.userService = userService;
         this.balanceLogRepository = balanceLogRepository;
+        this.dealRepository = dealRepository;
     }
 
     /**
@@ -107,6 +112,7 @@ public class BalanceLogResource {
                                                               @RequestParam MultiValueMap<String, String> queryParams,
                                                               UriComponentsBuilder uriBuilder) {
         log.debug("REST request to get a page of BalanceLogs");
+        boolean returnEmptyPage = false;
 
         if (!SecurityUtils.isCurrentUserInRole(ADMIN)) {
             User loggedInUser = userService.getUserWithAuthorities().get();
@@ -116,7 +122,7 @@ public class BalanceLogResource {
             }
 
             if (params.getForDeal() != null) {
-                params.setUserParticipatingInDeal(loggedInUser.getId());
+                returnEmptyPage = dealRepository.isDealExistWithThisUserParticipating(loggedInUser, params.getForDeal()) == 0;
             }
 
             if (params.getForDeal() == null && params.getForUser() == null) {
@@ -124,7 +130,13 @@ public class BalanceLogResource {
             }
         }
 
-        Page<BalanceLog> page = balanceLogRepository.findAll(params, pageable);
+        Page<BalanceLog> page;
+
+        if (returnEmptyPage) {
+            page = Page.empty();
+        } else {
+            page = balanceLogRepository.findAll(params, pageable);
+        }
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
