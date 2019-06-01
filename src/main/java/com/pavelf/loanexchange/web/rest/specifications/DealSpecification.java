@@ -23,7 +23,7 @@ public class DealSpecification implements Specification<Deal> {
     private Long dealId;
     private PaymentInterval paymentEvery;
     private Integer minTerm;
-    private transient boolean getOnlyAvailableToDebtor = false;
+    private Long onlyAvailableToDebtor;
 
     @Override
     public Predicate toPredicate(Root<Deal> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -40,10 +40,10 @@ public class DealSpecification implements Specification<Deal> {
             predicateList.add(cb.equal(recipient.get("id"), forRecipient));
         }
 
-        if (getOnlyAvailableToDebtor) {
+        if (onlyAvailableToDebtor != null) {
             Join recipient = root.join("recipient");
             predicateList.add(cb.or(
-                cb.equal(recipient.get("id"), forRecipient),
+                cb.equal(recipient.get("id"), onlyAvailableToDebtor),
                 cb.equal(root.get("status"), DealStatus.PENDING)
             ));
         }
@@ -85,13 +85,12 @@ public class DealSpecification implements Specification<Deal> {
         return cb.and(predicateList.toArray(new Predicate[predicateList.size()]));
     }
 
-    public boolean isGetOnlyAvailableToDebtor() {
-        return getOnlyAvailableToDebtor;
+    public Long getOnlyAvailableToDebtor() {
+        return onlyAvailableToDebtor;
     }
 
-    public void setGetOnlyAvailableToDebtor(Long debtorId) {
-        this.getOnlyAvailableToDebtor = true;
-        this.setForRecipient(debtorId);
+    public void setOnlyAvailableToDebtor(Long onlyAvailableToDebtor) {
+        this.onlyAvailableToDebtor = onlyAvailableToDebtor;
     }
 
     public Integer getMinTerm() {

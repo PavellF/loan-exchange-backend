@@ -162,7 +162,7 @@ public class DealResource {
 
         if (SecurityUtils.isCurrentUserInRole(DEBTOR)) {
             User loggedInUser = userService.getUserWithAuthorities().get();
-            params.setGetOnlyAvailableToDebtor(loggedInUser.getId());
+            params.setOnlyAvailableToDebtor(loggedInUser.getId());
 
         } else if (SecurityUtils.isCurrentUserInRole(CREDITOR)) {
             User loggedInUser = userService.getUserWithAuthorities().get();
